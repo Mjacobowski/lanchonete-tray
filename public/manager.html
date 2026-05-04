@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager - Lanchonete</title>
+
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="layout-base.css">
+
+    <style>
+        .manager-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .manager-card {
+            background: var(--card);
+            border: 2px solid var(--borda);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .manager-card:hover {
+            border-color: var(--cor-primaria);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .manager-card h3 {
+            margin: 0 0 12px 0;
+            font-family: var(--font-destaque);
+            color: var(--cor-primaria);
+            font-size: 18px;
+        }
+
+        .manager-card p {
+            margin: 0 0 16px 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .resumo-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .stat-item {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-left: 4px solid var(--cor-primaria);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- LAYOUT COM SIDEBAR -->
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🍔</div>
+                <h1>Lanchonete</h1>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Início</span>
+                </a>
+
+                <a href="/balcao" class="nav-item">
+                    <span class="nav-item-icon">💳</span>
+                    <span>Balcão</span>
+                </a>
+
+                <a href="/cozinha" class="nav-item">
+                    <span class="nav-item-icon">👨‍🍳</span>
+                    <span>Cozinha</span>
+                </a>
+
+                <a href="/painel" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Painel</span>
+                </a>
+
+                <div class="nav-section-title">Gerenciamento</div>
+
+                <a href="/manager" class="nav-item active">
+                    <span class="nav-item-icon">⚙️</span>
+                    <span>Manager</span>
+                </a>
+
+                <a href="/manager/configuracoes" class="nav-item">
+                    <span class="nav-item-icon">🎨</span>
+                    <span>Configurações</span>
+                </a>
+
+                <a href="/manager/cardapio" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Cardápio</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h2 class="top-bar-title">Painel do Manager</h2>
+                <div class="top-bar-actions">
+                    <span style="color: var(--muted);" id="hora">00:00</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <h1 style="font-family: var(--font-destaque); font-size: 26px; color: var(--cor-primaria); margin-bottom: 20px;">
+                    Gerenciamento da Loja
+                </h1>
+
+                <div class="manager-grid">
+                    <div class="manager-card">
+                        <h3>🎨 Configurações</h3>
+                        <p>Edite dados da loja, cores do sistema, contato e informações gerais.</p>
+                        <a href="/manager/configuracoes" class="btn btn-primary">Acessar</a>
+                    </div>
+
+                    <div class="manager-card">
+                        <h3>📋 Cardápio</h3>
+                        <p>Gerencia categorias, produtos, preços e disponibilidade de itens.</p>
+                        <a href="/manager/cardapio" class="btn btn-primary">Acessar</a>
+                    </div>
+                </div>
+
+                <div class="resumo-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Categorias</div>
+                        <div class="stat-value" id="totalCategorias">-</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Produtos</div>
+                        <div class="stat-value" id="totalProdutos">-</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Pedidos</div>
+                        <div class="stat-value" id="totalPedidos">-</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script de Tema -->
+    <script src="theme-loader.js"></script>
+
+    <script>
+        function atualizarHora() {
+            const agora = new Date();
+            const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('hora').textContent = hora;
+        }
+
+        atualizarHora();
+        setInterval(atualizarHora, 1000);
+
+        // Marcar link ativo
+        document.querySelectorAll('.nav-item').forEach(link => {
+            const href = link.getAttribute('href');
+            if (window.location.pathname === href) {
+                link.classList.add('active');
+            }
+        });
+
+        async function carregarResumo() {
+            try {
+                const [categoriasResp, produtosResp, pedidosResp] = await Promise.all([
+                    fetch("/api/categorias"),
+                    fetch("/api/produtos"),
+                    fetch("/api/pedidos")
+                ]);
+
+                const categorias = await categoriasResp.json();
+                const produtos = await produtosResp.json();
+                const pedidos = await pedidosResp.json();
+
+                document.getElementById("totalCategorias").innerText = Array.isArray(categorias) ? categorias.length : 0;
+                document.getElementById("totalProdutos").innerText = Array.isArray(produtos) ? produtos.length : 0;
+                document.getElementById("totalPedidos").innerText = Array.isArray(pedidos) ? pedidos.length : 0;
+            } catch (error) {
+                console.error("Erro ao carregar resumo:", error);
+            }
+        }
+
+        carregarResumo();
+    </script>
+</body>
+
+</html>

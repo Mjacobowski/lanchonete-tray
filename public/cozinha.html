@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cozinha - Lanchonete</title>
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="layout-base.css">
+
+  <style>
+    .pedidos-fila {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .pedido-cozinha {
+      background: var(--card);
+      border-left: 4px solid var(--cor-primaria);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pedido-cozinha.preparando {
+      border-left-color: var(--cor-destaque);
+    }
+
+    .pedido-cozinha.pronto {
+      border-left-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .cozinha-numero {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cor-primaria);
+      margin-bottom: 8px;
+    }
+
+    .cozinha-mesa {
+      display: inline-block;
+      background: var(--fundo);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .cozinha-itens {
+      margin: 12px 0;
+      padding: 12px;
+      background: var(--fundo);
+      border-radius: 6px;
+    }
+
+    .cozinha-item {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--borda);
+    }
+
+    .cozinha-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-qtd {
+      background: var(--cor-primaria);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+
+    .cozinha-tempo {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .btn-pronto {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-pronto:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- LAYOUT COM SIDEBAR -->
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🍔</div>
+        <h1>Lanchonete</h1>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="/" class="nav-item">
+          <span class="nav-item-icon">🏠</span>
+          <span>Início</span>
+        </a>
+
+        <a href="/balcao" class="nav-item">
+          <span class="nav-item-icon">💳</span>
+          <span>Balcão</span>
+        </a>
+
+        <a href="/cozinha" class="nav-item active">
+          <span class="nav-item-icon">👨‍🍳</span>
+          <span>Cozinha</span>
+        </a>
+
+        <a href="/painel" class="nav-item">
+          <span class="nav-item-icon">📊</span>
+          <span>Painel</span>
+        </a>
+
+        <div class="nav-section-title">Gerenciamento</div>
+
+        <a href="/manager" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          <span>Manager</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+      <div class="top-bar">
+        <h2 class="top-bar-title">Fila da Cozinha</h2>
+        <div class="top-bar-actions">
+          <span style="color: var(--muted);" id="hora">00:00</span>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <h1 style="font-family: var(--font-destaque); font-size: 24px; color: var(--cor-primaria); margin-bottom: 20px;">
+          Pedidos em Fila
+        </h1>
+
+        <div id="pedidos" class="pedidos-fila"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="theme-loader.js"></script>
+
+  <script>
+    const socket = io();
+
+    function atualizarHora() {
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('hora').textContent = hora;
+    }
+
+    atualizarHora();
+    setInterval(atualizarHora, 1000);
+
+    function renderizarPedidos(pedidos) {
+      const container = document.getElementById('pedidos');
+
+      const pedidosFila = pedidos.filter(p => p.status === 'novo' || p.status === 'preparando');
+
+      if (!pedidosFila || pedidosFila.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">✨</div>
+            <p>Nenhum pedido na fila!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = pedidosFila.map((pedido) => {
+        const itens = pedido.itens
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            return `${item.quantidade || 1}x ${item.nome}`;
+          });
+
+        return `
+          <div class="pedido-cozinha ${pedido.status}">
+            <div class="cozinha-numero">Pedido #${pedido.id}</div>
+            <div class="cozinha-mesa">Mesa ${pedido.mesa}</div>
+
+            <div class="cozinha-itens">
+              ${itens.map(item => `<div class="cozinha-item">${item}</div>`).join('')}
+            </div>
+
+            <div class="cozinha-tempo">
+              ⏱️ ${pedido.tempo_espera || '0'} min
+            </div>
+
+            <button class="btn-pronto" onclick="marcarPronto(${pedido.id})">
+              ✓ Marcar Pronto
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function marcarPronto(id) {
+      socket.emit('mudar_status_pedido', { id, status: 'pronto' });
+    }
+
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor');
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('pedidos_listados', (pedidos) => {
+      renderizarPedidos(pedidos);
+    });
+
+    socket.on('pedido_criado', () => {
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('status_atualizado', () => {
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('pedidos_atualizados', (pedidos) => {
+      renderizarPedidos(pedidos);
+    });
+  </script>
+</body>
+
+</html>

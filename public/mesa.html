@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Mesa</title>
+    <style>
+        :root {
+            --cor-primaria: #e11d48;
+            --cor-secundaria: #111827;
+            --cor-destaque: #f59e0b;
+            --fundo: #f3f4f6;
+            --card: #ffffff;
+            --texto: #111827;
+            --muted: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--fundo);
+            color: var(--texto);
+        }
+
+        header {
+            background: var(--cor-secundaria);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            object-fit: cover;
+            display: none;
+        }
+
+        .titulo-loja {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.1;
+        }
+
+        .mesa-info {
+            margin-top: 4px;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .preview-aviso {
+            display: none;
+            margin-top: 14px;
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.55);
+            color: white;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 18px;
+            padding-bottom: 120px;
+        }
+
+        .categoria {
+            margin-bottom: 24px;
+        }
+
+        .categoria h2 {
+            margin: 0 0 12px;
+            color: var(--cor-secundaria);
+            font-size: 22px;
+        }
+
+        .produto {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .produto h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+        .produto p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .preco {
+            color: var(--cor-destaque);
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .produto button {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .carrinho {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.12);
+            padding: 14px 18px;
+            z-index: 20;
+        }
+
+        .carrinho-resumo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .carrinho strong {
+            display: block;
+        }
+
+        .carrinho small {
+            color: var(--muted);
+        }
+
+        .botao-carrinho {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 50;
+            padding: 18px;
+        }
+
+        .modal.aberto {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 22px 22px 0 0;
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+            max-height: 86vh;
+            overflow: auto;
+        }
+
+        .modal-card h2 {
+            margin-top: 0;
+        }
+
+        .item-carrinho {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .item-carrinho button {
+            border: 0;
+            border-radius: 8px;
+            padding: 6px 9px;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 76px;
+            resize: vertical;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: Arial, sans-serif;
+            margin-top: 10px;
+        }
+
+        .modal-acoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-secundario {
+            background: #e5e7eb;
+            color: #111827;
+            border: 0;
+            border-radius: 14px;
+            padding: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-principal {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            border-radius: 14px;
+            padding: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mensagem {
+            margin-top: 12px;
+            color: #15803d;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="topo">
+            <img id="logo" class="logo" alt="Logo da loja" />
+
+            <div>
+                <h1 id="nomeLoja" class="titulo-loja">Minha Lanchonete</h1>
+                <div id="mesaInfo" class="mesa-info">Mesa</div>
+            </div>
+        </div>
+
+        <div id="previewAviso" class="preview-aviso">
+            Modo preview: você pode testar o layout, mas nenhum pedido será enviado.
+        </div>
+    </header>
+
+    <main>
+        <section class="categoria">
+            <h2>Lanches</h2>
+
+            <article class="produto">
+                <div>
+                    <h3>X-Burguer</h3>
+                    <p>Pão, hambúrguer, queijo e molho especial.</p>
+                    <div class="preco">R$ 18,90</div>
+                </div>
+
+                <button onclick="adicionarAoCarrinho({
+          nome: 'X-Burguer',
+          quantidade: 1,
+          precoCentavos: 1890
+        })">
+                    Adicionar
+                </button>
+            </article>
+
+            <article class="produto">
+                <div>
+                    <h3>X-Salada</h3>
+                    <p>Pão, hambúrguer, queijo, alface, tomate e molho.</p>
+                    <div class="preco">R$ 21,90</div>
+                </div>
+
+                <button onclick="adicionarAoCarrinho({
+          nome: 'X-Salada',
+          quantidade: 1,
+          precoCentavos: 2190
+        })">
+                    Adicionar
+                </button>
+            </article>
+        </section>
+
+        <section class="categoria">
+            <h2>Bebidas</h2>
+
+            <article class="produto">
+                <div>
+                    <h3>Coca-Cola lata</h3>
+                    <p>350ml gelada.</p>
+                    <div class="preco">R$ 6,00</div>
+                </div>
+
+                <button onclick="adicionarAoCarrinho({
+          nome: 'Coca-Cola lata',
+          quantidade: 1,
+          precoCentavos: 600
+        })">
+                    Adicionar
+                </button>
+            </article>
+        </section>
+    </main>
+
+    <section class="carrinho">
+        <div class="carrinho-resumo">
+            <div>
+                <strong id="carrinhoResumo">Carrinho vazio</strong>
+                <small id="carrinhoTotal">R$ 0,00</small>
+            </div>
+
+            <button class="botao-carrinho" onclick="abrirCarrinho()">
+                Ver carrinho
+            </button>
+        </div>
+    </section>
+
+    <div id="modalCarrinho" class="modal">
+        <div class="modal-card">
+            <h2>Seu carrinho</h2>
+
+            <div id="itensCarrinho"></div>
+
+            <label>
+                Observação do pedido
+                <textarea id="observacao" placeholder="Ex: sem cebola, ponto da carne, retirar molho..."></textarea>
+            </label>
+
+            <div class="mensagem" id="mensagem"></div>
+
+            <div class="modal-acoes">
+                <button class="btn-secundario" onclick="fecharCarrinho()">Continuar comprando</button>
+                <button class="btn-principal" onclick="enviarPedido()">Enviar pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carrinho = [];
+        let modoPreview = false;
+        let numeroMesa = null;
+
+        function formatarMoeda(centavos) {
+            return (centavos / 100).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function getNumeroMesa() {
+            const partes = window.location.pathname.split("/");
+
+            if (partes[2] === "preview") {
+                return 0;
+            }
+
+            return Number(partes[2]);
+        }
+
+        async function carregarConfiguracoes() {
+            const resposta = await fetch("/api/configuracoes");
+            const config = await resposta.json();
+
+            document.documentElement.style.setProperty("--cor-primaria", config.tema.corPrimaria);
+            document.documentElement.style.setProperty("--cor-secundaria", config.tema.corSecundaria);
+            document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
+
+            document.getElementById("nomeLoja").innerText = config.loja.nomeFantasia || "Minha Lanchonete";
+
+            const logo = config.loja.logoUrl;
+            const logoEl = document.getElementById("logo");
+
+            if (logo) {
+                logoEl.src = logo;
+                logoEl.style.display = "block";
+            } else {
+                logoEl.style.display = "none";
+            }
+        }
+
+        async function carregarMesa() {
+            numeroMesa = getNumeroMesa();
+            modoPreview = numeroMesa === 0;
+
+            if (modoPreview) {
+                document.getElementById("mesaInfo").innerText = "Mesa 0 - Preview";
+                document.getElementById("previewAviso").style.display = "block";
+                document.title = "Preview da mesa";
+                return;
+            }
+
+            const resposta = await fetch(`/api/mesa/${numeroMesa}`);
+            const mesa = await resposta.json();
+
+            document.getElementById("mesaInfo").innerText = mesa.nome;
+            document.title = mesa.nome;
+        }
+
+        function adicionarAoCarrinho(produto) {
+            const existente = carrinho.find((item) => item.nome === produto.nome);
+
+            if (existente) {
+                existente.quantidade += 1;
+            } else {
+                carrinho.push({ ...produto });
+            }
+
+            atualizarCarrinho();
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            atualizarCarrinho();
+            renderizarItensCarrinho();
+        }
+
+        function alterarQuantidade(index, delta) {
+            carrinho[index].quantidade += delta;
+
+            if (carrinho[index].quantidade <= 0) {
+                carrinho.splice(index, 1);
+            }
+
+            atualizarCarrinho();
+            renderizarItensCarrinho();
+        }
+
+        function calcularTotal() {
+            return carrinho.reduce((total, item) => {
+                return total + item.quantidade * item.precoCentavos;
+            }, 0);
+        }
+
+        function atualizarCarrinho() {
+            const quantidade = carrinho.reduce((total, item) => total + item.quantidade, 0);
+            const total = calcularTotal();
+
+            document.getElementById("carrinhoResumo").innerText =
+                quantidade === 0 ? "Carrinho vazio" : `${quantidade} item(ns) no carrinho`;
+
+            document.getElementById("carrinhoTotal").innerText = formatarMoeda(total);
+        }
+
+        function abrirCarrinho() {
+            document.getElementById("modalCarrinho").classList.add("aberto");
+            document.getElementById("mensagem").innerText = "";
+            renderizarItensCarrinho();
+        }
+
+        function fecharCarrinho() {
+            document.getElementById("modalCarrinho").classList.remove("aberto");
+        }
+
+        function renderizarItensCarrinho() {
+            const container = document.getElementById("itensCarrinho");
+
+            if (carrinho.length === 0) {
+                container.innerHTML = "<p>Seu carrinho está vazio.</p>";
+                return;
+            }
+
+            container.innerHTML = carrinho.map((item, index) => {
+                const totalItem = item.quantidade * item.precoCentavos;
+
+                return `
+          <div class="item-carrinho">
+            <div>
+              <strong>${item.nome}</strong><br>
+              ${item.quantidade}x ${formatarMoeda(item.precoCentavos)}<br>
+              <strong>${formatarMoeda(totalItem)}</strong>
+            </div>
+
+            <div>
+              <button onclick="alterarQuantidade(${index}, -1)">-</button>
+              <button onclick="alterarQuantidade(${index}, 1)">+</button>
+              <button onclick="removerDoCarrinho(${index})">Remover</button>
+            </div>
+          </div>
+        `;
+            }).join("");
+        }
+
+        async function enviarPedido() {
+            const mensagem = document.getElementById("mensagem");
+
+            if (carrinho.length === 0) {
+                mensagem.innerText = "Adicione pelo menos um item ao carrinho.";
+                return;
+            }
+
+            if (modoPreview) {
+                mensagem.innerText = "Preview: pedido não enviado. Layout testado com sucesso.";
+                return;
+            }
+
+            const resposta = await fetch("/api/pedidos", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    mesa: numeroMesa,
+                    observacao: document.getElementById("observacao").value,
+                    itens: carrinho
+                })
+            });
+
+            const dados = await resposta.json();
+
+            mensagem.innerText = dados.mensagem || "Pedido enviado!";
+
+            carrinho = [];
+            atualizarCarrinho();
+            renderizarItensCarrinho();
+        }
+
+        carregarConfiguracoes();
+        carregarMesa();
+        atualizarCarrinho();
+    </script>
+</body>
+
+</html>

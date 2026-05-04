@@ -1,0 +1,217 @@
+/* =========================================
+   SAGA GOURMET - IDENTIDADE VISUAL 2.0
+   Cores: Vermelho (Fome), Amarelo (Destaque), Marrom (Grelhado)
+   ========================================= */
+
+:root {
+    --vermelho-bk: #d62300;
+    --amarelo-bk: #ffb703;
+    --marrom-gourmet: #432818;
+    --marrom-dark: #2b1a10;
+    --creme-fundo: #f5f5f5;
+    --branco: #ffffff;
+    --sombra: 0 8px 25px rgba(0,0,0,0.15);
+    --radius-gourmet: 25px;
+}
+
+/* Reset e Comportamento Geral */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--creme-fundo);
+    font-family: 'Poppins', sans-serif;
+    color: var(--marrom-gourmet);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tipografia de Impacto */
+h1, h2, h3, #titulo {
+    font-family: 'Lilita One', cursive;
+    text-transform: uppercase;
+    color: var(--vermelho-bk);
+    letter-spacing: 1px;
+}
+
+/* --- HEADER (MANAGER, COZINHA, BALCÃO) --- */
+header {
+    background-color: var(--vermelho-bk);
+    color: var(--amarelo-bk);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+header h1 {
+    color: var(--branco);
+    font-size: 2.2rem;
+    margin: 0;
+}
+
+#relogio {
+    font-family: 'Lilita One', cursive;
+    font-size: 2rem;
+    color: var(--amarelo-bk);
+}
+
+/* --- ESTILO PARA MESA.HTML --- */
+#titulo {
+    text-align: center;
+    font-size: 3.5rem;
+    margin: 40px 0 10px 0;
+    text-shadow: 2px 2px 0px var(--amarelo-bk);
+}
+
+p {
+    text-align: center;
+    font-weight: 600;
+    color: var(--marrom-gourmet);
+    margin-bottom: 30px;
+}
+
+/* Botão de Pedido (Estilo Totem) */
+button {
+    display: block;
+    width: 85%;
+    max-width: 450px;
+    margin: 25px auto;
+    padding: 25px;
+    border: none;
+    border-radius: var(--radius-gourmet);
+    background-color: var(--amarelo-bk);
+    color: var(--marrom-dark);
+    font-family: 'Lilita One', cursive;
+    font-size: 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 10px 0px #cc9200; /* Efeito 3D */
+    transition: all 0.1s;
+}
+
+button:active {
+    transform: translateY(4px);
+    box-shadow: 0 6px 0px #cc9200;
+}
+
+/* --- ESTILO PARA PAINEL.HTML (TV DE PEDIDOS) --- */
+main {
+    padding: 30px;
+    display: grid;
+    gap: 30px;
+    flex: 1;
+}
+
+/* Grid de duas colunas para o Painel */
+body:has(#preparando) main {
+    grid-template-columns: 1fr 1fr;
+}
+
+.coluna {
+    background: var(--marrom-gourmet);
+    border-radius: var(--radius-gourmet);
+    padding: 25px;
+    border: 4px solid var(--vermelho-bk);
+}
+
+.coluna h2 {
+    color: var(--amarelo-bk);
+    text-align: center;
+    font-size: 2.5rem;
+    border-bottom: 2px dashed var(--vermelho-bk);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.pedido {
+    background: var(--branco);
+    color: var(--marrom-dark);
+    margin-bottom: 20px;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: var(--sombra);
+    animation: slideIn 0.3s ease-out;
+}
+
+.pedido strong {
+    font-family: 'Lilita One', cursive;
+    color: var(--vermelho-bk);
+    font-size: 2.2rem;
+    display: block;
+}
+
+/* --- ESTILO PARA BALCAO.HTML --- */
+#pedidos .pedido-item { /* Simulação para o container do script */
+    border: 3px solid var(--marrom-gourmet);
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+}
+
+/* Botões específicos do Balcão */
+#pedidos button {
+    display: inline-block;
+    width: auto;
+    font-size: 1.1rem;
+    padding: 12px 25px;
+    margin-right: 10px;
+    background-color: var(--marrom-gourmet);
+    color: white;
+    box-shadow: none;
+}
+
+#pedidos button:hover {
+    background-color: var(--vermelho-bk);
+}
+
+/* --- INDEX.HTML (MENU DO SERVIDOR) --- */
+ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px;
+}
+
+ul li a {
+    text-decoration: none;
+    background: var(--marrom-dark);
+    color: var(--amarelo-bk);
+    padding: 20px 40px;
+    border-radius: 15px;
+    font-family: 'Lilita One', cursive;
+    font-size: 1.4rem;
+    border: 3px solid var(--vermelho-bk);
+    transition: 0.3s;
+}
+
+ul li a:hover {
+    background: var(--vermelho-bk);
+    color: white;
+    transform: rotate(-2deg);
+}
+
+/* --- RODAPÉ SAGA GOURMET --- */
+.footer-saga {
+    text-align: center;
+    padding: 20px;
+    background: var(--marrom-dark);
+    color: var(--branco);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-top: auto;
+    border-top: 5px solid var(--vermelho-bk);
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Pedidos - Lanchonete</title>
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="layout-base.css">
+
+  <style>
+    .painel-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .coluna-painel {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid var(--borda);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .coluna-title {
+      font-family: var(--font-destaque);
+      font-size: 22px;
+      color: var(--cor-primaria);
+      margin: 0 0 16px 0;
+      padding-bottom: 12px;
+      border-bottom: 3px solid var(--cor-primaria);
+    }
+
+    .pedidos-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .pedido-painel {
+      background: var(--fundo);
+      border-left: 4px solid var(--cor-primaria);
+      border-radius: 8px;
+      padding: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .pedido-painel:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .pedido-numero-grande {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--cor-primaria);
+      margin-bottom: 6px;
+    }
+
+    .pedido-info {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .pedido-itens-painel {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--texto);
+    }
+
+    .vazio-painel {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 20px;
+    }
+
+    .vazio-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 1024px) {
+      .painel-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- LAYOUT COM SIDEBAR RECOLHIDA (Aparece com hover) -->
+  <div class="app-layout sidebar-collapsed">
+    <!-- SIDEBAR (recolhida por padrão, expande no hover) -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🍔</div>
+        <h1>Lanchonete</h1>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="/" class="nav-item">
+          <span class="nav-item-icon">🏠</span>
+          <span>Início</span>
+        </a>
+
+        <a href="/balcao" class="nav-item">
+          <span class="nav-item-icon">💳</span>
+          <span>Balcão</span>
+        </a>
+
+        <a href="/cozinha" class="nav-item">
+          <span class="nav-item-icon">👨‍🍳</span>
+          <span>Cozinha</span>
+        </a>
+
+        <a href="/painel" class="nav-item active">
+          <span class="nav-item-icon">📊</span>
+          <span>Painel</span>
+        </a>
+
+        <div class="nav-section-title">Gerenciamento</div>
+
+        <a href="/manager" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          <span>Manager</span>
+        </a>
+
+        <a href="/manager/configuracoes" class="nav-item">
+          <span class="nav-item-icon">🎨</span>
+          <span>Configurações</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <strong>Sua Empresa Sistemas</strong>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+      <div class="top-bar">
+        <h2 class="top-bar-title">Painel de Acompanhamento</h2>
+        <div class="top-bar-actions">
+          <span style="color: var(--muted);" id="hora">00:00</span>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <div class="painel-layout">
+          <!-- Coluna: Preparando -->
+          <div class="coluna-painel">
+            <h2 class="coluna-title">👨‍🍳 Preparando</h2>
+            <div id="preparando" class="pedidos-grid"></div>
+          </div>
+
+          <!-- Coluna: Pronto -->
+          <div class="coluna-painel">
+            <h2 class="coluna-title">✅ Pronto</h2>
+            <div id="pronto" class="pedidos-grid"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="theme-loader.js"></script>
+
+  <script>
+    const socket = io();
+
+    function atualizarHora() {
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('hora').textContent = hora;
+    }
+
+    atualizarHora();
+    setInterval(atualizarHora, 1000);
+
+    function criarCardPedido(pedido) {
+      const itens = pedido.itens
+        .map((item) => {
+          if (typeof item === 'string') return item;
+          return `${item.quantidade || 1}x ${item.nome}`;
+        })
+        .join(', ');
+
+      return `
+        <div class="pedido-painel">
+          <div class="pedido-numero-grande">Pedido #${pedido.id}</div>
+          <div class="pedido-info">📍 Mesa ${pedido.mesa}</div>
+          <div class="pedido-itens-painel">${itens}</div>
+        </div>
+      `;
+    }
+
+    function renderizarPedidos(pedidos) {
+      const preparando = pedidos.filter((p) => p.status === 'preparando' || p.status === 'novo');
+      const pronto = pedidos.filter((p) => p.status === 'pronto');
+
+      const htmlPreparando = preparando.length
+        ? preparando.map(criarCardPedido).join('')
+        : '<div class="vazio-painel"><div class="vazio-icon">✨</div>Nenhum pedido preparando</div>';
+
+      const htmlPronto = pronto.length
+        ? pronto.map(criarCardPedido).join('')
+        : '<div class="vazio-painel"><div class="vazio-icon">📭</div>Nenhum pedido pronto</div>';
+
+      document.getElementById('preparando').innerHTML = htmlPreparando;
+      document.getElementById('pronto').innerHTML = htmlPronto;
+    }
+
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor');
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('pedidos_listados', (pedidos) => {
+      renderizarPedidos(pedidos);
+    });
+
+    socket.on('pedido_criado', () => {
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('status_atualizado', () => {
+      socket.emit('listar_pedidos');
+    });
+
+    socket.on('pedidos_atualizados', (pedidos) => {
+      renderizarPedidos(pedidos);
+    });
+  </script>
+</body>
+
+</html>

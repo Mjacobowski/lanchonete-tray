@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Cardápio</title>
+
+    <style>
+        :root {
+            --cor-primaria: #e11d48;
+            --cor-secundaria: #0f172a;
+            --cor-destaque: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: var(--cor-secundaria);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin: 6px 0 0;
+            opacity: 0.85;
+        }
+
+        .voltar {
+            color: white;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.35);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 32px;
+            display: grid;
+            gap: 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .acoes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .botao {
+            display: inline-block;
+            background: var(--cor-primaria);
+            color: white;
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .botao.secundario {
+            background: var(--cor-secundaria);
+        }
+
+        p {
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>Cardápio</h1>
+            <p>Cadastre categorias e produtos do sistema.</p>
+        </div>
+
+        <a class="voltar" href="/manager">Voltar</a>
+    </header>
+
+    <main>
+        <section class="grid">
+            <article class="card">
+                <h2>Categorias</h2>
+                <p>Crie categorias como Lanches, Bebidas, Porções e Sobremesas.</p>
+
+                <div class="acoes">
+                    <button class="botao">Nova categoria</button>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>Produtos</h2>
+                <p>Cadastre produtos manualmente ou use busca por código de barras para pré-preencher dados.</p>
+
+                <div class="acoes">
+                    <button class="botao">Buscar por código de barras</button>
+                    <button class="botao secundario">Cadastrar manualmente</button>
+                </div>
+            </article>
+        </section>
+
+        <article class="card">
+            <h2>Próximo passo</h2>
+            <p>
+                Agora que a estrutura existe, o próximo passo é montar os formulários reais de categorias e produtos
+                usando as funções do banco e as APIs do backend.
+            </p>
+        </article>
+    </main>
+</body>
+
+</html>
