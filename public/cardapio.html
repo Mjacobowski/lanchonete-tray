@@ -10,6 +10,11 @@
             --cor-primaria: #e11d48;
             --cor-secundaria: #0f172a;
             --cor-destaque: #f59e0b;
+            --fundo: #f3f4f6;
+            --card: #ffffff;
+            --texto: #111827;
+            --muted: #64748b;
+            --borda: #e5e7eb;
         }
 
         * {
@@ -19,8 +24,8 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            color: #111827;
+            background: var(--fundo);
+            color: var(--texto);
         }
 
         header {
@@ -30,6 +35,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
         }
 
         header h1 {
@@ -44,7 +50,7 @@
         .voltar {
             color: white;
             text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.35);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             padding: 10px 14px;
             border-radius: 10px;
             font-weight: bold;
@@ -56,40 +62,28 @@
             gap: 24px;
         }
 
-        .grid {
+        .grid-principal {
             display: grid;
-            grid-template-columns: 1fr 1.3fr;
+            grid-template-columns: 0.8fr 1.2fr;
             gap: 24px;
+            align-items: start;
         }
 
         .card {
-            background: white;
+            background: var(--card);
             border-radius: 18px;
             padding: 24px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--borda);
         }
 
-        .acoes {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 14px;
+        h2 {
+            margin-top: 0;
+            color: var(--cor-secundaria);
         }
 
-        .botao {
-            display: inline-block;
-            background: var(--cor-primaria);
-            color: white;
-            text-decoration: none;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-weight: bold;
-            border: 0;
-            cursor: pointer;
-        }
-
-        .botao.secundario {
-            background: var(--cor-secundaria);
+        h3 {
+            margin-bottom: 8px;
         }
 
         p {
@@ -97,13 +91,220 @@
             line-height: 1.5;
         }
 
-        @media (max-width: 900px) {
-            .grid {
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 78px;
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 120px;
+            gap: 12px;
+        }
+
+        .linha-produto {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .campo {
+            margin-bottom: 14px;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        button {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button.secundario {
+            background: var(--cor-secundaria);
+        }
+
+        button.neutro {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        button.perigo {
+            background: #dc2626;
+        }
+
+        button.sucesso {
+            background: #16a34a;
+        }
+
+        .mensagem {
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        .mensagem.erro {
+            color: #b91c1c;
+        }
+
+        .lista {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .item-lista {
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            background: #ffffff;
+        }
+
+        .item-lista strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .item-lista small {
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #e5e7eb;
+            color: #334155;
+        }
+
+        .badge.ativo {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .produto-card {
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 74px 1fr auto;
+            gap: 14px;
+            align-items: center;
+            background: white;
+        }
+
+        .produto-img {
+            width: 74px;
+            height: 74px;
+            border-radius: 14px;
+            background: #f1f5f9;
+            object-fit: cover;
+        }
+
+        .produto-info strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .produto-info div {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preco {
+            color: var(--cor-destaque);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .preview-produto {
+            display: none;
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 14px;
+            background: #f8fafc;
+        }
+
+        .preview-produto.ativo {
+            display: grid;
+            grid-template-columns: 88px 1fr;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .preview-produto img {
+            width: 88px;
+            height: 88px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #e5e7eb;
+        }
+
+        .aviso {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 980px) {
+            main {
+                padding: 18px;
+            }
+
+            .grid-principal,
+            .linha-produto,
+            .linha {
                 grid-template-columns: 1fr;
             }
 
-            main {
-                padding: 18px;
+            .produto-card {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -120,35 +321,553 @@
     </header>
 
     <main>
-        <section class="grid">
+        <section class="grid-principal">
             <article class="card">
                 <h2>Categorias</h2>
-                <p>Crie categorias como Lanches, Bebidas, Porções e Sobremesas.</p>
+                <p>Crie agrupamentos como Lanches, Bebidas, Porções e Sobremesas.</p>
 
-                <div class="acoes">
-                    <button class="botao">Nova categoria</button>
-                </div>
+                <form id="formCategoria">
+                    <input type="hidden" id="categoriaId" />
+
+                    <div class="linha">
+                        <div class="campo">
+                            <label for="categoriaNome">Nome da categoria</label>
+                            <input id="categoriaNome" placeholder="Ex: Lanches" />
+                        </div>
+
+                        <div class="campo">
+                            <label for="categoriaOrdem">Ordem</label>
+                            <input id="categoriaOrdem" type="number" value="0" />
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label>
+                            <input id="categoriaAtivo" type="checkbox" checked style="width:auto;" />
+                            Categoria ativa
+                        </label>
+                    </div>
+
+                    <div class="acoes">
+                        <button type="submit">Salvar categoria</button>
+                        <button type="button" class="neutro" onclick="limparFormularioCategoria()">Limpar</button>
+                    </div>
+
+                    <div id="mensagemCategoria" class="mensagem"></div>
+                </form>
+
+                <div id="listaCategorias" class="lista"></div>
             </article>
 
             <article class="card">
                 <h2>Produtos</h2>
-                <p>Cadastre produtos manualmente ou use busca por código de barras para pré-preencher dados.</p>
+                <p>Busque por código de barras para pré-preencher dados ou cadastre manualmente.</p>
+
+                <div class="campo">
+                    <label for="buscaProduto">Código de barras ou nome do produto</label>
+                    <input id="buscaProduto" placeholder="Ex: 789... ou X-Bacon artesanal" />
+                </div>
 
                 <div class="acoes">
-                    <button class="botao">Buscar por código de barras</button>
-                    <button class="botao secundario">Cadastrar manualmente</button>
+                    <button type="button" onclick="buscarPorCodigoBarras()">Buscar por código de barras</button>
+                    <button type="button" class="secundario" onclick="iniciarCadastroManual()">Cadastrar manualmente</button>
                 </div>
+
+                <div class="aviso">
+                    A busca por código de barras não salva automaticamente. Ela apenas preenche o formulário para revisão.
+                </div>
+
+                <div id="previewBusca" class="preview-produto">
+                    <img id="previewImagem" alt="Imagem do produto" />
+                    <div>
+                        <strong id="previewNome"></strong>
+                        <div id="previewMarca"></div>
+                        <div id="previewDescricao"></div>
+                    </div>
+                </div>
+
+                <div id="mensagemProdutoBusca" class="mensagem"></div>
             </article>
         </section>
 
-        <article class="card">
-            <h2>Próximo passo</h2>
-            <p>
-                Agora que a estrutura existe, o próximo passo é montar os formulários reais de categorias e produtos
-                usando as funções do banco e as APIs do backend.
-            </p>
-        </article>
+        <section class="card">
+            <h2>Cadastro de produto</h2>
+
+            <form id="formProduto">
+                <input type="hidden" id="produtoId" />
+
+                <div class="linha-produto">
+                    <div class="campo">
+                        <label for="produtoCategoria">Categoria</label>
+                        <select id="produtoCategoria">
+                            <option value="">Sem categoria</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="produtoCodigoBarras">Código de barras</label>
+                        <input id="produtoCodigoBarras" placeholder="Opcional" />
+                    </div>
+                </div>
+
+                <div class="linha-produto">
+                    <div class="campo">
+                        <label for="produtoNome">Nome</label>
+                        <input id="produtoNome" placeholder="Ex: X-Burguer" />
+                    </div>
+
+                    <div class="campo">
+                        <label for="produtoMarca">Marca</label>
+                        <input id="produtoMarca" placeholder="Opcional" />
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="produtoDescricao">Descrição</label>
+                    <textarea id="produtoDescricao" placeholder="Ex: Pão, hambúrguer, queijo e molho especial."></textarea>
+                </div>
+
+                <div class="linha-produto">
+                    <div class="campo">
+                        <label for="produtoPreco">Preço de venda</label>
+                        <input id="produtoPreco" placeholder="Ex: 18,90" />
+                    </div>
+
+                    <div class="campo">
+                        <label for="produtoImagemUrl">Imagem URL</label>
+                        <input id="produtoImagemUrl" placeholder="https://..." />
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label>
+                        <input id="produtoAtivo" type="checkbox" checked style="width:auto;" />
+                        Produto ativo
+                    </label>
+                </div>
+
+                <div class="acoes">
+                    <button type="submit">Salvar produto</button>
+                    <button type="button" class="neutro" onclick="limparFormularioProduto()">Limpar</button>
+                </div>
+
+                <div id="mensagemProduto" class="mensagem"></div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Produtos cadastrados</h2>
+            <div id="listaProdutos" class="lista"></div>
+        </section>
     </main>
+
+    <script>
+        const camposCategoria = {
+            id: document.getElementById("categoriaId"),
+            nome: document.getElementById("categoriaNome"),
+            ordem: document.getElementById("categoriaOrdem"),
+            ativo: document.getElementById("categoriaAtivo")
+        };
+
+        const camposProduto = {
+            id: document.getElementById("produtoId"),
+            categoriaId: document.getElementById("produtoCategoria"),
+            codigoBarras: document.getElementById("produtoCodigoBarras"),
+            nome: document.getElementById("produtoNome"),
+            marca: document.getElementById("produtoMarca"),
+            descricao: document.getElementById("produtoDescricao"),
+            preco: document.getElementById("produtoPreco"),
+            imagemUrl: document.getElementById("produtoImagemUrl"),
+            ativo: document.getElementById("produtoAtivo")
+        };
+
+        const mensagemCategoria = document.getElementById("mensagemCategoria");
+        const mensagemProduto = document.getElementById("mensagemProduto");
+        const mensagemProdutoBusca = document.getElementById("mensagemProdutoBusca");
+
+        function mostrarMensagem(el, texto, erro = false) {
+            el.innerText = texto;
+            el.classList.toggle("erro", erro);
+
+            setTimeout(() => {
+                el.innerText = "";
+                el.classList.remove("erro");
+            }, 3500);
+        }
+
+        function formatarMoeda(centavos) {
+            return (Number(centavos || 0) / 100).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function limparCodigo(valor) {
+            return String(valor || "").replace(/\D/g, "");
+        }
+
+        function formatarPrecoInput(valor) {
+            const texto = String(valor || "")
+                .replace("R$", "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+                .trim();
+
+            const numero = Number(texto);
+
+            if (!Number.isFinite(numero)) {
+                return "";
+            }
+
+            return numero.toFixed(2).replace(".", ",");
+        }
+
+        function preencherSeVazio(campo, valor) {
+            if (!campo.value.trim() && valor) {
+                campo.value = valor;
+            }
+        }
+
+        async function carregarTema() {
+            const resposta = await fetch("/api/configuracoes");
+            const config = await resposta.json();
+
+            document.documentElement.style.setProperty("--cor-primaria", config.tema.corPrimaria);
+            document.documentElement.style.setProperty("--cor-secundaria", config.tema.corSecundaria);
+            document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
+        }
+
+        async function carregarCategorias() {
+            const resposta = await fetch("/api/categorias");
+            const categorias = await resposta.json();
+
+            renderizarCategorias(categorias);
+            renderizarSelectCategorias(categorias);
+        }
+
+        function renderizarCategorias(categorias) {
+            const container = document.getElementById("listaCategorias");
+
+            if (!categorias.length) {
+                container.innerHTML = "<p>Nenhuma categoria cadastrada.</p>";
+                return;
+            }
+
+            container.innerHTML = categorias.map((categoria) => {
+                const ativo = Boolean(categoria.ativo);
+
+                return `
+                    <div class="item-lista">
+                        <div>
+                            <strong>${categoria.nome}</strong>
+                            <small>Ordem: ${categoria.ordem}</small>
+                            <div>
+                                <span class="badge ${ativo ? "ativo" : "inativo"}">
+                                    ${ativo ? "Ativa" : "Inativa"}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="acoes">
+                            <button type="button" class="neutro" onclick='editarCategoria(${JSON.stringify(categoria)})'>
+                                Editar
+                            </button>
+
+                            <button type="button" class="${ativo ? "perigo" : "sucesso"}" onclick="alterarStatusCategoria(${categoria.id}, ${ativo ? 0 : 1})">
+                                ${ativo ? "Desativar" : "Ativar"}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderizarSelectCategorias(categorias) {
+            camposProduto.categoriaId.innerHTML = `
+                <option value="">Sem categoria</option>
+                ${categorias.map((categoria) => `
+                    <option value="${categoria.id}">
+                        ${categoria.nome}${categoria.ativo ? "" : " (inativa)"}
+                    </option>
+                `).join("")}
+            `;
+        }
+
+        function editarCategoria(categoria) {
+            camposCategoria.id.value = categoria.id;
+            camposCategoria.nome.value = categoria.nome;
+            camposCategoria.ordem.value = categoria.ordem;
+            camposCategoria.ativo.checked = Boolean(categoria.ativo);
+        }
+
+        function limparFormularioCategoria() {
+            camposCategoria.id.value = "";
+            camposCategoria.nome.value = "";
+            camposCategoria.ordem.value = 0;
+            camposCategoria.ativo.checked = true;
+        }
+
+        async function alterarStatusCategoria(id, ativo) {
+            await fetch(`/api/categorias/${id}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ativo })
+            });
+
+            await carregarCategorias();
+            await carregarProdutos();
+        }
+
+        document.getElementById("formCategoria").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const resposta = await fetch("/api/categorias", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: camposCategoria.id.value || null,
+                    nome: camposCategoria.nome.value,
+                    ordem: camposCategoria.ordem.value,
+                    ativo: camposCategoria.ativo.checked
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (!dados.ok) {
+                mostrarMensagem(mensagemCategoria, dados.mensagem || "Erro ao salvar categoria.", true);
+                return;
+            }
+
+            mostrarMensagem(mensagemCategoria, dados.mensagem || "Categoria salva!");
+            limparFormularioCategoria();
+            await carregarCategorias();
+        });
+
+        async function carregarProdutos() {
+            const resposta = await fetch("/api/produtos");
+            const produtos = await resposta.json();
+
+            renderizarProdutos(produtos);
+        }
+
+        function renderizarProdutos(produtos) {
+            const container = document.getElementById("listaProdutos");
+
+            if (!produtos.length) {
+                container.innerHTML = "<p>Nenhum produto cadastrado.</p>";
+                return;
+            }
+
+            container.innerHTML = produtos.map((produto) => {
+                const ativo = Boolean(produto.ativo);
+                const imagem = produto.imagemUrl || "";
+                const imgHtml = imagem
+                    ? `<img class="produto-img" src="${imagem}" alt="${produto.nome}">`
+                    : `<div class="produto-img"></div>`;
+
+                return `
+                    <div class="produto-card">
+                        ${imgHtml}
+
+                        <div class="produto-info">
+                            <strong>${produto.nome}</strong>
+                            <div>${produto.categoriaNome || "Sem categoria"}${produto.marca ? " • " + produto.marca : ""}</div>
+                            <div>${produto.descricao || ""}</div>
+                            <div>${produto.codigoBarras ? "Código: " + produto.codigoBarras : ""}</div>
+                            <span class="preco">${formatarMoeda(produto.precoCentavos)}</span>
+                            <div>
+                                <span class="badge ${ativo ? "ativo" : "inativo"}">
+                                    ${ativo ? "Ativo" : "Inativo"}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="acoes">
+                            <button type="button" class="neutro" onclick='editarProduto(${JSON.stringify(produto)})'>
+                                Editar
+                            </button>
+
+                            <button type="button" class="${ativo ? "perigo" : "sucesso"}" onclick="alterarStatusProduto(${produto.id}, ${ativo ? 0 : 1})">
+                                ${ativo ? "Desativar" : "Ativar"}
+                            </button>
+
+                            <button type="button" class="perigo" onclick="excluirProduto(${produto.id})">
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function editarProduto(produto) {
+            camposProduto.id.value = produto.id;
+            camposProduto.categoriaId.value = produto.categoriaId || "";
+            camposProduto.codigoBarras.value = produto.codigoBarras || "";
+            camposProduto.nome.value = produto.nome || "";
+            camposProduto.marca.value = produto.marca || "";
+            camposProduto.descricao.value = produto.descricao || "";
+            camposProduto.preco.value = formatarMoeda(produto.precoCentavos).replace("R$", "").trim();
+            camposProduto.imagemUrl.value = produto.imagemUrl || "";
+            camposProduto.ativo.checked = Boolean(produto.ativo);
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function limparFormularioProduto() {
+            camposProduto.id.value = "";
+            camposProduto.categoriaId.value = "";
+            camposProduto.codigoBarras.value = "";
+            camposProduto.nome.value = "";
+            camposProduto.marca.value = "";
+            camposProduto.descricao.value = "";
+            camposProduto.preco.value = "";
+            camposProduto.imagemUrl.value = "";
+            camposProduto.ativo.checked = true;
+
+            document.getElementById("previewBusca").classList.remove("ativo");
+        }
+
+        async function alterarStatusProduto(id, ativo) {
+            await fetch(`/api/produtos/${id}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ativo })
+            });
+
+            await carregarProdutos();
+        }
+
+        async function excluirProduto(id) {
+            const confirmar = confirm(
+                "Tem certeza que deseja excluir este produto? Se ele já foi usado em pedidos, o sistema não permitirá a exclusão. Nesse caso, desative o produto."
+            );
+
+            if (!confirmar) {
+                return;
+            }
+
+            const resposta = await fetch(`/api/produtos/${id}`, {
+                method: "DELETE"
+            });
+
+            const dados = await resposta.json();
+
+            if (!dados.ok) {
+                mostrarMensagem(mensagemProduto, dados.mensagem || "Erro ao excluir produto.", true);
+                return;
+            }
+
+            mostrarMensagem(mensagemProduto, dados.mensagem || "Produto excluído.");
+            limparFormularioProduto();
+            await carregarProdutos();
+        }
+
+        function iniciarCadastroManual() {
+            const texto = document.getElementById("buscaProduto").value.trim();
+
+            limparFormularioProduto();
+
+            if (texto) {
+                camposProduto.nome.value = texto;
+            }
+
+            mostrarMensagem(mensagemProdutoBusca, "Preencha os dados e confirme em Salvar produto.");
+        }
+
+        async function buscarPorCodigoBarras() {
+            const codigo = limparCodigo(document.getElementById("buscaProduto").value);
+
+            if (!codigo) {
+                mostrarMensagem(mensagemProdutoBusca, "Digite um código de barras.", true);
+                return;
+            }
+
+            mostrarMensagem(mensagemProdutoBusca, "Buscando produto...");
+
+            const resposta = await fetch(`/api/produtos/buscar-codigo/${codigo}`);
+            const dados = await resposta.json();
+
+            if (!dados.ok) {
+                mostrarMensagem(mensagemProdutoBusca, dados.mensagem || "Produto não encontrado.", true);
+                return;
+            }
+
+            limparFormularioProduto();
+
+            preencherSeVazio(camposProduto.codigoBarras, dados.produto.codigoBarras);
+            preencherSeVazio(camposProduto.nome, dados.produto.nome);
+            preencherSeVazio(camposProduto.marca, dados.produto.marca);
+            preencherSeVazio(camposProduto.descricao, dados.produto.descricao);
+            preencherSeVazio(camposProduto.imagemUrl, dados.produto.imagemUrl);
+
+            renderizarPreviewBusca(dados.produto);
+
+            mostrarMensagem(mensagemProdutoBusca, "Produto encontrado. Revise, informe preço/categoria e salve.");
+        }
+
+        function renderizarPreviewBusca(produto) {
+            const preview = document.getElementById("previewBusca");
+            const imagem = document.getElementById("previewImagem");
+
+            imagem.src = produto.imagemUrl || "";
+            imagem.style.display = produto.imagemUrl ? "block" : "none";
+
+            document.getElementById("previewNome").innerText = produto.nome || "Produto encontrado";
+            document.getElementById("previewMarca").innerText = produto.marca || "";
+            document.getElementById("previewDescricao").innerText = produto.descricao || "";
+
+            preview.classList.add("ativo");
+        }
+
+        document.getElementById("formProduto").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const resposta = await fetch("/api/produtos", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: camposProduto.id.value || null,
+                    categoriaId: camposProduto.categoriaId.value || null,
+                    codigoBarras: camposProduto.codigoBarras.value,
+                    nome: camposProduto.nome.value,
+                    marca: camposProduto.marca.value,
+                    descricao: camposProduto.descricao.value,
+                    preco: camposProduto.preco.value,
+                    imagemUrl: camposProduto.imagemUrl.value,
+                    ativo: camposProduto.ativo.checked
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (!dados.ok) {
+                mostrarMensagem(mensagemProduto, dados.mensagem || "Erro ao salvar produto.", true);
+                return;
+            }
+
+            mostrarMensagem(mensagemProduto, dados.mensagem || "Produto salvo!");
+            limparFormularioProduto();
+            await carregarProdutos();
+        });
+
+        camposProduto.preco.addEventListener("blur", () => {
+            camposProduto.preco.value = formatarPrecoInput(camposProduto.preco.value);
+        });
+
+        carregarTema();
+        carregarCategorias();
+        carregarProdutos();
+    </script>
 </body>
 
 </html>

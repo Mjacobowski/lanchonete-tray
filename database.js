@@ -517,6 +517,33 @@ function alterarStatusProduto(id, ativo) {
     return buscarProdutoPorId(id);
 }
 
+function excluirProduto(id) {
+    const produtoId = Number(id);
+
+    const produto = buscarProdutoPorId(produtoId);
+
+    if (!produto) {
+        return false;
+    }
+
+    const usadoEmPedidos = db.prepare(`
+        SELECT COUNT(*) AS total
+        FROM pedido_itens
+        WHERE produto_id = ?
+    `).get(produtoId);
+
+    if (usadoEmPedidos.total > 0) {
+        throw new Error("Este produto já foi usado em pedidos. Para preservar o histórico, desative o produto em vez de excluir.");
+    }
+
+    const result = db.prepare(`
+        DELETE FROM produtos
+        WHERE id = ?
+    `).run(produtoId);
+
+    return result.changes > 0;
+}
+
 // -----------------------------
 // Pedidos
 // -----------------------------
@@ -676,5 +703,6 @@ module.exports = {
     listarProdutos,
     salvarProduto,
     buscarProdutoPorId,
-    alterarStatusProduto
+    alterarStatusProduto,
+    excluirProduto
 };

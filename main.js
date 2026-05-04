@@ -10,7 +10,16 @@ const {
     listarPedidos,
     atualizarStatusPedido,
     obterConfiguracoes,
-    salvarConfiguracoes
+    salvarConfiguracoes,
+
+    listarCategorias,
+    salvarCategoria,
+    alterarStatusCategoria,
+
+    listarProdutos,
+    salvarProduto,
+    alterarStatusProduto,
+    excluirProduto
 } = require("./database");
 
 let tray = null;
@@ -30,6 +39,34 @@ function getLocalIp() {
     }
 
     return "localhost";
+}
+
+function limparCodigoBarras(valor) {
+    return String(valor || "").replace(/\D/g, "");
+}
+
+function validarGtin(codigo) {
+    const numeros = limparCodigoBarras(codigo);
+    const tamanhosValidos = [8, 12, 13, 14];
+
+    if (!tamanhosValidos.includes(numeros.length)) {
+        return false;
+    }
+
+    const digitos = numeros.split("").map(Number);
+    const digitoVerificador = digitos.pop();
+
+    let soma = 0;
+    let peso = 3;
+
+    for (let i = digitos.length - 1; i >= 0; i--) {
+        soma += digitos[i] * peso;
+        peso = peso === 3 ? 1 : 3;
+    }
+
+    const calculado = (10 - (soma % 10)) % 10;
+
+    return calculado === digitoVerificador;
 }
 
 function startLocalServer() {
@@ -203,6 +240,198 @@ function startLocalServer() {
         }
     });
 
+    // API de categorias
+    web.get("/api/categorias", (req, res) => {
+        const somenteAtivas = req.query.ativas === "1";
+        const categorias = listarCategorias({ somenteAtivas });
+
+        res.json(categorias);
+    });
+
+    web.post("/api/categorias", (req, res) => {
+        try {
+            const categoria = salvarCategoria(req.body);
+
+            res.json({
+                ok: true,
+                mensagem: "Categoria salva com sucesso!",
+                categoria
+            });
+        } catch (error) {
+            res.status(400).json({
+                ok: false,
+                mensagem: error.message || "Erro ao salvar categoria."
+            });
+        }
+    });
+
+    web.patch("/api/categorias/:id/status", (req, res) => {
+        try {
+            const categoria = alterarStatusCategoria(req.params.id, req.body.ativo);
+
+            if (!categoria) {
+                return res.status(404).json({
+                    ok: false,
+                    mensagem: "Categoria não encontrada."
+                });
+            }
+
+            res.json({
+                ok: true,
+                categoria
+            });
+        } catch (error) {
+            res.status(400).json({
+                ok: false,
+                mensagem: error.message || "Erro ao alterar categoria."
+            });
+        }
+    });
+
+    // API de produtos
+    web.get("/api/produtos", (req, res) => {
+        const somenteAtivos = req.query.ativos === "1";
+        const produtos = listarProdutos({ somenteAtivos });
+
+        res.json(produtos);
+    });
+
+    web.post("/api/produtos", (req, res) => {
+        try {
+            const produto = salvarProduto(req.body);
+
+            res.json({
+                ok: true,
+                mensagem: "Produto salvo com sucesso!",
+                produto
+            });
+        } catch (error) {
+            res.status(400).json({
+                ok: false,
+                mensagem: error.message || "Erro ao salvar produto."
+            });
+        }
+    });
+
+    web.patch("/api/produtos/:id/status", (req, res) => {
+        try {
+            const produto = alterarStatusProduto(req.params.id, req.body.ativo);
+
+            if (!produto) {
+                return res.status(404).json({
+                    ok: false,
+                    mensagem: "Produto não encontrado."
+                });
+            }
+
+            res.json({
+                ok: true,
+                produto
+            });
+        } catch (error) {
+            res.status(400).json({
+                ok: false,
+                mensagem: error.message || "Erro ao alterar produto."
+            });
+        }
+    });
+
+    web.delete("/api/produtos/:id", (req, res) => {
+        try {
+            const removido = excluirProduto(req.params.id);
+
+            if (!removido) {
+                return res.status(404).json({
+                    ok: false,
+                    mensagem: "Produto não encontrado."
+                });
+            }
+
+            res.json({
+                ok: true,
+                mensagem: "Produto excluído com sucesso."
+            });
+        } catch (error) {
+            res.status(400).json({
+                ok: false,
+                mensagem: error.message || "Erro ao excluir produto."
+            });
+        }
+    });
+
+    // Busca de produto por código de barras
+    // Não salva automaticamente. Só retorna dados para preencher o formulário.
+    web.get("/api/produtos/buscar-codigo/:codigo", async (req, res) => {
+        try {
+            const codigo = limparCodigoBarras(req.params.codigo);
+
+            if (!validarGtin(codigo)) {
+                return res.status(400).json({
+                    ok: false,
+                    mensagem: "Código de barras inválido. Verifique os números digitados."
+                });
+            }
+
+            const resposta = await fetch(`https://world.openfoodfacts.org/api/v2/product/${codigo}.json`);
+
+            if (!resposta.ok) {
+                return res.status(404).json({
+                    ok: false,
+                    mensagem: "Produto não encontrado na base pública."
+                });
+            }
+
+            const dados = await resposta.json();
+
+            if (!dados.product) {
+                return res.status(404).json({
+                    ok: false,
+                    mensagem: "Produto não encontrado na base pública."
+                });
+            }
+
+            const produto = dados.product;
+
+            const nome =
+                produto.product_name_pt ||
+                produto.product_name ||
+                produto.generic_name_pt ||
+                produto.generic_name ||
+                "";
+
+            const marca = produto.brands || "";
+
+            const descricaoPartes = [
+                produto.quantity,
+                produto.categories
+            ].filter(Boolean);
+
+            const imagemUrl =
+                produto.image_front_url ||
+                produto.image_url ||
+                "";
+
+            res.json({
+                ok: true,
+                mensagem: "Produto encontrado. Revise os dados antes de salvar.",
+                produto: {
+                    codigoBarras: codigo,
+                    nome,
+                    marca,
+                    descricao: descricaoPartes.join(" - "),
+                    imagemUrl
+                }
+            });
+        } catch (error) {
+            console.error("Erro ao buscar produto por código de barras:", error);
+
+            res.status(500).json({
+                ok: false,
+                mensagem: "Erro ao buscar produto. Verifique a internet e tente novamente."
+            });
+        }
+    });
+
     // API de pedidos
     web.get("/api/pedidos", (req, res) => {
         const pedidos = listarPedidos();
@@ -212,7 +441,8 @@ function startLocalServer() {
     web.post("/api/pedidos", (req, res) => {
         const novoPedido = criarPedido({
             mesa: req.body.mesa,
-            itens: req.body.itens || []
+            itens: req.body.itens || [],
+            observacao: req.body.observacao || ""
         });
 
         console.log("Pedido recebido:", novoPedido);
