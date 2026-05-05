@@ -19,6 +19,7 @@
             --texto: #111827;
             --muted: #6b7280;
             --borda: #e5e7eb;
+            --sidebar-width: 280px;
         }
 
         * {
@@ -35,7 +36,7 @@
 
         .app-container {
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: var(--sidebar-width) 1fr;
             grid-template-rows: 80px 1fr 100px;
             height: 100vh;
         }
@@ -523,29 +524,10 @@
         }
 
         @media (max-width: 1024px) {
+            :root { --sidebar-width: 220px; }
+
             .app-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                grid-row: 1;
-                grid-column: 1;
-                display: none;
-                position: fixed;
-                left: 0;
-                top: 80px;
-                bottom: 100px;
-                width: 250px;
-                z-index: 40;
-                border-right: 2px solid var(--borda);
-            }
-
-            .sidebar.aberta {
-                display: flex;
-            }
-
-            .main-content {
-                grid-column: 1;
+                grid-template-columns: var(--sidebar-width) 1fr;
             }
 
             .produtos-grid {
@@ -554,30 +536,17 @@
         }
 
         @media (max-width: 640px) {
+            :root { --sidebar-width: 180px; }
+
             .app-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: var(--sidebar-width) 1fr;
             }
 
-            .header-left {
-                min-width: 0;
-            }
-
-            .titulo-loja {
-                font-size: 16px;
-            }
-
-            .btn-carrinho-header {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-
-            .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            }
-
-            .produto {
-                padding: 10px;
-            }
+            .header-left { min-width: 0; }
+            .titulo-loja { font-size: 16px; }
+            .btn-carrinho-header { padding: 8px 12px; font-size: 12px; }
+            .produtos-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .produto { padding: 10px; }
         }
     </style>
 </head>
@@ -734,8 +703,12 @@
 
                 renderizarCategorias();
 
-                if (categorias.length > 0) {
+                // Só define a primeira categoria ao carregar se nenhuma estiver ativa
+                if (!categoriaAtiva && categorias.length > 0) {
                     selecionarCategoria(categorias[0].id);
+                } else if (categoriaAtiva) {
+                    const produtosCategoria = produtos.filter(p => p.categoriaId === categoriaAtiva);
+                    renderizarProdutos(produtosCategoria);
                 } else {
                     renderizarProdutos([]);
                 }
@@ -994,22 +967,57 @@
         // ========================
         // Escutar mudanças em tempo real via Socket.IO
         // ========================
-        socket.on("connect", () => {
+        socket.on("connect", async () => {
             console.log("✓ Conectado ao servidor em tempo real");
+            // Garante sincronização completa ao (re)conectar
+            await carregarCategoriasEProdutos();
+            atualizarCarrinho();
+            // Solicita catálogo consolidado imediatamente
+            try { socket.emit("listar_catalogo"); } catch (e) {}
+        });
+
+        // Evento consolidado: recebe categorias/produtos ATIVOS de uma vez
+        socket.on("catalogo_atualizado", (payload) => {
+            try { console.log("📦 catalogo_atualizado", { cats: payload?.categorias?.length||0, prods: payload?.produtos?.length||0 }); } catch (e) {}
+            if (!payload) return;
+            categorias = Array.isArray(payload.categorias) ? payload.categorias : [];
+            produtos = Array.isArray(payload.produtos) ? payload.produtos : [];
+
+            // Se a categoria ativa não existe mais, escolhe a primeira disponível
+            if (!categorias.some(c => c.id === categoriaAtiva)) {
+                categoriaAtiva = categorias[0]?.id || null;
+            }
+
+            renderizarCategorias();
+
+            if (categoriaAtiva) {
+                const produtosCategoria = produtos.filter(p => p.categoriaId === categoriaAtiva);
+                renderizarProdutos(produtosCategoria);
+            } else {
+                renderizarProdutos([]);
+            }
         });
 
         socket.on("categorias_atualizadas", async (novasCategorias) => {
             console.log("🔄 Categorias foram atualizadas no servidor, recarregando...");
-            categorias = novasCategorias;
+            categorias = novasCategorias || [];
+            // Mantém a categoria ativa quando ainda existir; senão escolhe a primeira
+            if (!categorias.some(c => c.id === categoriaAtiva)) {
+                categoriaAtiva = categorias[0]?.id || null;
+            }
             renderizarCategorias();
-            if (categorias.length > 0) {
-                selecionarCategoria(categorias[0].id);
+            if (categoriaAtiva) {
+                const produtosCategoria = produtos.filter(p => p.categoriaId === categoriaAtiva);
+                renderizarProdutos(produtosCategoria);
+            } else {
+                renderizarProdutos([]);
             }
         });
 
         socket.on("produtos_atualizados", async (novosProdutos) => {
             console.log("🔄 Produtos foram atualizados no servidor, recarregando...");
-            produtos = novosProdutos;
+            // Considera apenas produtos ativos para a vitrine da mesa
+            produtos = (novosProdutos || []).filter(p => p.ativo);
 
             // Se há uma categoria ativa, mostra apenas seus produtos
             if (categoriaAtiva) {
@@ -1023,6 +1031,16 @@
         socket.on("disconnect", () => {
             console.log("✗ Desconectado do servidor");
         });
+
+        socket.on("connect_error", (err) => {
+            console.warn("⚠️ Erro de conexão Socket.IO:", err?.message || err);
+        });
+
+        // Fallback: atualização periódica a cada 30s para garantir consistência
+        setInterval(() => {
+            if (!socket.connected) return; // só quando conectado
+            carregarCategoriasEProdutos();
+        }, 30000);
     </script>
 </body>
 

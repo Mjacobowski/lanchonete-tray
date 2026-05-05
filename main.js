@@ -78,6 +78,27 @@ function startLocalServer() {
     const httpServer = http.createServer(web);
     const io = new Server(httpServer);
 
+    function broadcastCatalogo() {
+        try {
+            const categoriasTodas = listarCategorias();
+            const produtosTodos = listarProdutos();
+            const categoriasAtivas = listarCategorias({ somenteAtivas: true });
+            const produtosAtivos = listarProdutos({ somenteAtivos: true });
+
+            // Eventos granulares (compatibilidade)
+            io.emit("categorias_atualizadas", categoriasTodas);
+            io.emit("produtos_atualizados", produtosTodos);
+
+            // Evento consolidado otimizado para clientes de vitrine (mesa)
+            io.emit("catalogo_atualizado", {
+                categorias: categoriasAtivas,
+                produtos: produtosAtivos
+            });
+        } catch (e) {
+            console.error("Erro ao emitir catálogo:", e);
+        }
+    }
+
     // Páginas principais
     web.get("/", (req, res) => {
         res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -257,10 +278,8 @@ function startLocalServer() {
                 mensagem: "Categoria salva com sucesso!",
                 categoria
             });
-
-            // Notificar todos os clientes sobre mudança de categorias
-            io.emit("categorias_atualizadas", listarCategorias());
-            io.emit("produtos_atualizados", listarProdutos());
+            // Notificar todos os clientes
+            broadcastCatalogo();
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -284,10 +303,8 @@ function startLocalServer() {
                 ok: true,
                 categoria
             });
-
-            // Notificar todos os clientes sobre mudança de categorias
-            io.emit("categorias_atualizadas", listarCategorias());
-            io.emit("produtos_atualizados", listarProdutos());
+            // Notificar todos os clientes
+            broadcastCatalogo();
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -313,9 +330,8 @@ function startLocalServer() {
                 mensagem: "Produto salvo com sucesso!",
                 produto
             });
-
-            // Notificar todos os clientes sobre mudança de produtos
-            io.emit("produtos_atualizados", listarProdutos());
+            // Notificar todos os clientes
+            broadcastCatalogo();
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -339,9 +355,8 @@ function startLocalServer() {
                 ok: true,
                 produto
             });
-
-            // Notificar todos os clientes sobre mudança de produtos
-            io.emit("produtos_atualizados", listarProdutos());
+            // Notificar todos os clientes
+            broadcastCatalogo();
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -365,9 +380,8 @@ function startLocalServer() {
                 ok: true,
                 mensagem: "Produto excluído com sucesso."
             });
-
-            // Notificar todos os clientes sobre mudança de produtos
-            io.emit("produtos_atualizados", listarProdutos());
+            // Notificar todos os clientes
+            broadcastCatalogo();
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -498,7 +512,32 @@ function startLocalServer() {
     io.on("connection", (socket) => {
         console.log("Cliente conectado no tempo real:", socket.id);
 
+        // Estado inicial para clientes
         socket.emit("pedidos_atualizados", listarPedidos());
+        try {
+            const categoriasAtivas = listarCategorias({ somenteAtivas: true });
+            const produtosAtivos = listarProdutos({ somenteAtivos: true });
+            socket.emit("catalogo_atualizado", {
+                categorias: categoriasAtivas,
+                produtos: produtosAtivos
+            });
+        } catch (e) {
+            console.error("Erro ao enviar catálogo inicial:", e);
+        }
+
+        // Requisição ativa do cliente para reenviar catálogo sob demanda
+        socket.on("listar_catalogo", () => {
+            try {
+                const categoriasAtivas = listarCategorias({ somenteAtivas: true });
+                const produtosAtivos = listarProdutos({ somenteAtivos: true });
+                socket.emit("catalogo_atualizado", {
+                    categorias: categoriasAtivas,
+                    produtos: produtosAtivos
+                });
+            } catch (e) {
+                console.error("Erro ao listar catálogo sob demanda:", e);
+            }
+        });
     });
 
     server = httpServer.listen(PORT, "0.0.0.0", () => {
