@@ -3,7 +3,12 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Mesa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu - Lanchonete</title>
+    
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --cor-primaria: #e11d48;
@@ -13,6 +18,7 @@
             --card: #ffffff;
             --texto: #111827;
             --muted: #6b7280;
+            --borda: #e5e7eb;
         }
 
         * {
@@ -21,30 +27,42 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', Arial, sans-serif;
             background: var(--fundo);
             color: var(--texto);
+            overflow: hidden;
         }
 
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 80px 1fr 100px;
+            height: 100vh;
+        }
+
+        /* HEADER */
         header {
             background: var(--cor-secundaria);
             color: white;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .topo {
+            padding: 16px 20px;
+            grid-column: 1 / -1;
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: space-between;
+            z-index: 30;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
         }
 
         .logo {
-            width: 58px;
-            height: 58px;
-            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.15);
             object-fit: cover;
             display: none;
@@ -52,173 +70,423 @@
 
         .titulo-loja {
             margin: 0;
-            font-size: 24px;
-            line-height: 1.1;
+            font-size: 20px;
+            font-weight: 700;
         }
 
         .mesa-info {
-            margin-top: 4px;
-            opacity: 0.9;
+            opacity: 0.8;
+            font-size: 13px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-carrinho-header {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
             font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-carrinho-header:hover {
+            filter: brightness(0.95);
+        }
+
+        .contador-carrinho {
+            display: inline-block;
+            background: var(--cor-destaque);
+            color: #000;
+            border-radius: 20px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            margin-left: 6px;
         }
 
         .preview-aviso {
             display: none;
-            margin-top: 14px;
-            background: rgba(245, 158, 11, 0.18);
-            border: 1px solid rgba(245, 158, 11, 0.55);
-            color: white;
-            padding: 10px 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: bold;
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--cor-destaque);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        main {
-            padding: 18px;
-            padding-bottom: 120px;
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--card);
+            border-right: 1px solid var(--borda);
+            grid-row: 2 / 4;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 12px 0;
         }
 
-        .categoria {
-            margin-bottom: 24px;
+        .categorias-list {
+            flex: 1;
         }
 
-        .categoria h2 {
-            margin: 0 0 12px;
-            color: var(--cor-secundaria);
-            font-size: 22px;
+        .categoria-btn {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--texto);
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .categoria-btn:hover {
+            background: var(--fundo);
+        }
+
+        .categoria-btn.ativo {
+            background: rgba(225, 29, 72, 0.1);
+            border-left-color: var(--cor-primaria);
+            color: var(--cor-primaria);
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--borda);
+            display: flex;
+            gap: 8px;
+        }
+
+        .sidebar-footer button {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--borda);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-footer button:hover {
+            background: var(--fundo);
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            grid-row: 2;
+            grid-column: 2;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .categoria-titulo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            margin: 0 0 20px 0;
+            font-family: 'Lilita One', cursive;
+        }
+
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            flex: 1;
         }
 
         .produto {
             background: var(--card);
-            border-radius: 18px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 12px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .produto:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .produto-imagem {
+            width: 100%;
+            height: 120px;
+            background: var(--fundo);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .produto-imagem-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: var(--fundo);
         }
 
         .produto h3 {
             margin: 0 0 6px;
-            font-size: 18px;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.2;
         }
 
         .produto p {
-            margin: 0;
+            margin: 0 0 8px;
             color: var(--muted);
-            font-size: 14px;
+            font-size: 12px;
+            line-height: 1.3;
+            flex: 1;
         }
 
         .preco {
             color: var(--cor-destaque);
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 8px 0;
         }
 
-        .produto button {
+        .btn-adicionar {
             background: var(--cor-primaria);
             color: white;
             border: 0;
-            border-radius: 14px;
-            padding: 12px 14px;
-            font-weight: bold;
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
         }
 
-        .carrinho {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.12);
-            padding: 14px 18px;
-            z-index: 20;
+        .btn-adicionar:hover {
+            filter: brightness(0.95);
         }
 
-        .carrinho-resumo {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .carrinho strong {
-            display: block;
-        }
-
-        .carrinho small {
+        .vazio {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 20px;
             color: var(--muted);
         }
 
-        .botao-carrinho {
+        .vazio-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        /* CARRINHO RODAPÉ */
+        .carrinho-rodape {
+            background: white;
+            border-top: 2px solid var(--borda);
+            grid-column: 1 / -1;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .carrinho-info {
+            flex: 1;
+        }
+
+        .carrinho-resumo {
+            font-weight: 700;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .carrinho-total {
+            color: var(--cor-primaria);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 4px 0 0;
+        }
+
+        .btn-finalizar {
             background: var(--cor-primaria);
             color: white;
             border: 0;
-            border-radius: 14px;
-            padding: 13px 16px;
-            font-weight: bold;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
+        .btn-finalizar:hover {
+            filter: brightness(0.95);
+        }
+
+        .btn-finalizar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* MODAL DO CARRINHO */
         .modal {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.55);
-            z-index: 50;
-            padding: 18px;
-        }
-
-        .modal.aberto {
-            display: flex;
+            z-index: 100;
+            padding: 16px;
             align-items: flex-end;
             justify-content: center;
         }
 
-        .modal-card {
-            background: white;
-            border-radius: 22px 22px 0 0;
-            width: 100%;
-            max-width: 520px;
-            padding: 20px;
-            max-height: 86vh;
-            overflow: auto;
+        .modal.aberto {
+            display: flex;
         }
 
-        .modal-card h2 {
-            margin-top: 0;
+        .modal-card {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--borda);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .itens-carrinho {
+            margin-bottom: 16px;
         }
 
         .item-carrinho {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 12px 0;
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             gap: 12px;
+            padding: 12px;
+            background: var(--fundo);
+            border-radius: 10px;
+            margin-bottom: 10px;
         }
 
-        .item-carrinho button {
-            border: 0;
-            border-radius: 8px;
-            padding: 6px 9px;
+        .item-info {
+            flex: 1;
+        }
+
+        .item-nome {
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0 0 4px;
+        }
+
+        .item-preco {
+            color: var(--muted);
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .item-acoes {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .item-acoes button {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .item-acoes button:hover {
+            background: var(--fundo);
+        }
+
+        .item-quantidade {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
         }
 
         textarea {
             width: 100%;
-            min-height: 76px;
+            min-height: 70px;
             resize: vertical;
-            border: 1px solid #d1d5db;
-            border-radius: 12px;
-            padding: 12px;
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 10px;
             font-family: Arial, sans-serif;
+            font-size: 14px;
             margin-top: 10px;
+            margin-bottom: 16px;
+        }
+
+        .mensagem {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .mensagem.sucesso {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .mensagem.erro {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .modal-acoes {
@@ -228,145 +496,177 @@
             margin-top: 16px;
         }
 
-        .btn-secundario {
-            background: #e5e7eb;
-            color: #111827;
-            border: 0;
-            border-radius: 14px;
-            padding: 13px;
-            font-weight: bold;
+        .btn-modal-fechar {
+            background: var(--fundo);
+            color: var(--texto);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
         }
 
-        .btn-principal {
+        .btn-modal-enviar {
             background: var(--cor-primaria);
             color: white;
             border: 0;
-            border-radius: 14px;
-            padding: 13px;
-            font-weight: bold;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
         }
 
-        .mensagem {
-            margin-top: 12px;
-            color: #15803d;
-            font-weight: bold;
+        .btn-modal-enviar:hover {
+            filter: brightness(0.95);
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                grid-row: 1;
+                grid-column: 1;
+                display: none;
+                position: fixed;
+                left: 0;
+                top: 80px;
+                bottom: 100px;
+                width: 250px;
+                z-index: 40;
+                border-right: 2px solid var(--borda);
+            }
+
+            .sidebar.aberta {
+                display: flex;
+            }
+
+            .main-content {
+                grid-column: 1;
+            }
+
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header-left {
+                min-width: 0;
+            }
+
+            .titulo-loja {
+                font-size: 16px;
+            }
+
+            .btn-carrinho-header {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .produtos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+
+            .produto {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <div class="topo">
-            <img id="logo" class="logo" alt="Logo da loja" />
-
-            <div>
-                <h1 id="nomeLoja" class="titulo-loja">Minha Lanchonete</h1>
-                <div id="mesaInfo" class="mesa-info">Mesa</div>
-            </div>
-        </div>
-
-        <div id="previewAviso" class="preview-aviso">
-            Modo preview: você pode testar o layout, mas nenhum pedido será enviado.
-        </div>
-    </header>
-
-    <main>
-        <section class="categoria">
-            <h2>Lanches</h2>
-
-            <article class="produto">
+    <div class="app-container">
+        <!-- HEADER -->
+        <header>
+            <div class="header-left">
+                <img id="logo" class="logo" alt="Logo da loja" />
                 <div>
-                    <h3>X-Burguer</h3>
-                    <p>Pão, hambúrguer, queijo e molho especial.</p>
-                    <div class="preco">R$ 18,90</div>
+                    <h1 id="nomeLoja" class="titulo-loja">Lanchonete</h1>
+                    <div id="mesaInfo" class="mesa-info">Mesa</div>
                 </div>
-
-                <button onclick="adicionarAoCarrinho({
-          nome: 'X-Burguer',
-          quantidade: 1,
-          precoCentavos: 1890
-        })">
-                    Adicionar
-                </button>
-            </article>
-
-            <article class="produto">
-                <div>
-                    <h3>X-Salada</h3>
-                    <p>Pão, hambúrguer, queijo, alface, tomate e molho.</p>
-                    <div class="preco">R$ 21,90</div>
-                </div>
-
-                <button onclick="adicionarAoCarrinho({
-          nome: 'X-Salada',
-          quantidade: 1,
-          precoCentavos: 2190
-        })">
-                    Adicionar
-                </button>
-            </article>
-        </section>
-
-        <section class="categoria">
-            <h2>Bebidas</h2>
-
-            <article class="produto">
-                <div>
-                    <h3>Coca-Cola lata</h3>
-                    <p>350ml gelada.</p>
-                    <div class="preco">R$ 6,00</div>
-                </div>
-
-                <button onclick="adicionarAoCarrinho({
-          nome: 'Coca-Cola lata',
-          quantidade: 1,
-          precoCentavos: 600
-        })">
-                    Adicionar
-                </button>
-            </article>
-        </section>
-    </main>
-
-    <section class="carrinho">
-        <div class="carrinho-resumo">
-            <div>
-                <strong id="carrinhoResumo">Carrinho vazio</strong>
-                <small id="carrinhoTotal">R$ 0,00</small>
             </div>
 
-            <button class="botao-carrinho" onclick="abrirCarrinho()">
-                Ver carrinho
+            <div id="previewAviso" class="preview-aviso">
+                Modo preview (layout testado)
+            </div>
+
+            <div class="header-right">
+                <button class="btn-carrinho-header" onclick="abrirCarrinho()">
+                    🧾 Pedido
+                    <span class="contador-carrinho" id="contador">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="categorias-list" id="categoriasList"></div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <h2 class="categoria-titulo" id="categoriaTitulo">Cardápio</h2>
+            <div class="produtos-grid" id="produtosGrid">
+                <div class="vazio">
+                    <div class="vazio-icon">🍽️</div>
+                    <p>Carregando produtos...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- CARRINHO RODAPÉ -->
+        <section class="carrinho-rodape">
+            <div class="carrinho-info">
+                <p class="carrinho-resumo" id="carrinhoResumo">Pedido vazio</p>
+                <p class="carrinho-total" id="carrinhoTotal">R$ 0,00</p>
+            </div>
+            <button class="btn-finalizar" id="btnFinalizar" onclick="abrirCarrinho()" disabled>
+                Finalizar Pedido
             </button>
-        </div>
-    </section>
+        </section>
+    </div>
 
+    <!-- MODAL DO CARRINHO -->
     <div id="modalCarrinho" class="modal">
         <div class="modal-card">
-            <h2>Seu carrinho</h2>
+            <div class="modal-header">
+                <h2>Seu Pedido</h2>
+                <button class="modal-close" onclick="fecharCarrinho()">✕</button>
+            </div>
 
-            <div id="itensCarrinho"></div>
+            <div id="itensCarrinho" class="itens-carrinho"></div>
 
             <label>
-                Observação do pedido
+                <strong>Observação do pedido</strong>
                 <textarea id="observacao" placeholder="Ex: sem cebola, ponto da carne, retirar molho..."></textarea>
             </label>
 
-            <div class="mensagem" id="mensagem"></div>
+            <div class="mensagem" id="mensagem" style="display: none;"></div>
 
             <div class="modal-acoes">
-                <button class="btn-secundario" onclick="fecharCarrinho()">Continuar comprando</button>
-                <button class="btn-principal" onclick="enviarPedido()">Enviar pedido</button>
+                <button class="btn-modal-fechar" onclick="fecharCarrinho()">Continuar comprando</button>
+                <button class="btn-modal-enviar" onclick="enviarPedido()">Enviar pedido</button>
             </div>
         </div>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        let categorias = [];
+        let produtos = [];
         let carrinho = [];
         let modoPreview = false;
         let numeroMesa = null;
+        let categoriaAtiva = null;
+        const socket = io();
 
         function formatarMoeda(centavos) {
             return (centavos / 100).toLocaleString("pt-BR", {
@@ -377,32 +677,29 @@
 
         function getNumeroMesa() {
             const partes = window.location.pathname.split("/");
-
-            if (partes[2] === "preview") {
-                return 0;
-            }
-
+            if (partes[2] === "preview") return 0;
             return Number(partes[2]);
         }
 
         async function carregarConfiguracoes() {
-            const resposta = await fetch("/api/configuracoes");
-            const config = await resposta.json();
+            try {
+                const resposta = await fetch("/api/configuracoes");
+                const config = await resposta.json();
 
-            document.documentElement.style.setProperty("--cor-primaria", config.tema.corPrimaria);
-            document.documentElement.style.setProperty("--cor-secundaria", config.tema.corSecundaria);
-            document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
+                document.documentElement.style.setProperty("--cor-primaria", config.tema.corPrimaria);
+                document.documentElement.style.setProperty("--cor-secundaria", config.tema.corSecundaria);
+                document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
 
-            document.getElementById("nomeLoja").innerText = config.loja.nomeFantasia || "Minha Lanchonete";
+                document.getElementById("nomeLoja").innerText = config.loja.nomeFantasia || "Lanchonete";
 
-            const logo = config.loja.logoUrl;
-            const logoEl = document.getElementById("logo");
-
-            if (logo) {
-                logoEl.src = logo;
-                logoEl.style.display = "block";
-            } else {
-                logoEl.style.display = "none";
+                const logo = config.loja.logoUrl;
+                const logoEl = document.getElementById("logo");
+                if (logo) {
+                    logoEl.src = logo;
+                    logoEl.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações:", error);
             }
         }
 
@@ -417,15 +714,112 @@
                 return;
             }
 
-            const resposta = await fetch(`/api/mesa/${numeroMesa}`);
-            const mesa = await resposta.json();
+            try {
+                const resposta = await fetch(`/api/mesa/${numeroMesa}`);
+                const mesa = await resposta.json();
+                document.getElementById("mesaInfo").innerText = mesa.nome;
+                document.title = mesa.nome;
+            } catch (error) {
+                console.error("Erro ao carregar mesa:", error);
+            }
+        }
 
-            document.getElementById("mesaInfo").innerText = mesa.nome;
-            document.title = mesa.nome;
+        async function carregarCategoriasEProdutos() {
+            try {
+                const respostaCateg = await fetch("/api/categorias?ativas=1");
+                const respostaProd = await fetch("/api/produtos?ativos=1");
+
+                categorias = await respostaCateg.json();
+                produtos = await respostaProd.json();
+
+                renderizarCategorias();
+
+                if (categorias.length > 0) {
+                    selecionarCategoria(categorias[0].id);
+                } else {
+                    renderizarProdutos([]);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar categorias/produtos:", error);
+                document.getElementById("produtosGrid").innerHTML = `
+                    <div class="vazio" style="grid-column: 1 / -1;">
+                        <div class="vazio-icon">⚠️</div>
+                        <p>Erro ao carregar cardápio</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarCategorias() {
+            const container = document.getElementById("categoriasList");
+            container.innerHTML = categorias.map(cat => `
+                <button 
+                    class="categoria-btn ${categoriaAtiva === cat.id ? 'ativo' : ''}"
+                    onclick="selecionarCategoria(${cat.id})"
+                >
+                    ${cat.nome}
+                </button>
+            `).join("");
+        }
+
+        function selecionarCategoria(categoriaId) {
+            categoriaAtiva = categoriaId;
+            renderizarCategorias();
+
+            const categoria = categorias.find(c => c.id === categoriaId);
+            if (categoria) {
+                document.getElementById("categoriaTitulo").innerText = categoria.nome;
+            }
+
+            const produtosCategoria = produtos.filter(p => p.categoriaId === categoriaId);
+            renderizarProdutos(produtosCategoria);
+        }
+
+        function renderizarProdutos(listaProdutos) {
+            const container = document.getElementById("produtosGrid");
+
+            if (!listaProdutos || listaProdutos.length === 0) {
+                container.innerHTML = `
+                    <div class="vazio" style="grid-column: 1 / -1;">
+                        <div class="vazio-icon">🍽️</div>
+                        <p>Nenhum produto nesta categoria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = listaProdutos.map(produto => {
+                const imagem = produto.imagemUrl && produto.imagemUrl.trim() ? produto.imagemUrl : "/img/404.png";
+                const imagemHtml = produto.imagemUrl && produto.imagemUrl.trim()
+                    ? `<img class=\"produto-imagem-img\" src=\"${imagem}\" alt=\"${produto.nome}\" onerror=\"this.outerHTML='\\u003cdiv class=\\'produto-imagem\\'\\u003e🍔\\u003c/div\\u003e'\">`
+                    : `<img class=\"produto-imagem-img\" src=\"${imagem}\" alt=\"${produto.nome}\" onerror=\"this.outerHTML='\\u003cdiv class=\\'produto-imagem\\'\\u003e🍔\\u003c/div\\u003e'\">`;
+
+                const payload = {
+                    id: produto.id,
+                    nome: produto.nome,
+                    quantidade: 1,
+                    precoCentavos: produto.precoCentavos
+                };
+
+                return `
+                    <div class="produto">
+                        ${imagemHtml}
+                        <h3>${produto.nome}</h3>
+                        <p>${produto.descricao || ""}</p>
+                        <div class="preco">${formatarMoeda(produto.precoCentavos)}</div>
+                        <button 
+                            class="btn-adicionar"
+                            onclick='adicionarAoCarrinho(${JSON.stringify(payload).replace(/"/g, "&quot;")})'
+                        >
+                            Adicionar
+                        </button>
+                    </div>
+                `;
+            }).join("");
         }
 
         function adicionarAoCarrinho(produto) {
-            const existente = carrinho.find((item) => item.nome === produto.nome);
+            const existente = carrinho.find(item => item.id === produto.id);
 
             if (existente) {
                 existente.quantidade += 1;
@@ -463,15 +857,19 @@
             const quantidade = carrinho.reduce((total, item) => total + item.quantidade, 0);
             const total = calcularTotal();
 
-            document.getElementById("carrinhoResumo").innerText =
-                quantidade === 0 ? "Carrinho vazio" : `${quantidade} item(ns) no carrinho`;
-
-            document.getElementById("carrinhoTotal").innerText = formatarMoeda(total);
+            document.getElementById("contador").innerText = quantidade;
+            const resumoEl = document.getElementById("carrinhoResumo");
+            if (resumoEl) resumoEl.innerText = quantidade === 0 ? "Pedido vazio" : `${quantidade} item(ns)`;
+            const totalEl = document.getElementById("carrinhoTotal");
+            if (totalEl) totalEl.innerText = formatarMoeda(total);
+            const btn = document.getElementById("btnFinalizar");
+            if (btn) btn.disabled = quantidade === 0;
         }
 
         function abrirCarrinho() {
+            if (carrinho.length === 0) return;
             document.getElementById("modalCarrinho").classList.add("aberto");
-            document.getElementById("mensagem").innerText = "";
+            document.getElementById("mensagem").style.display = "none";
             renderizarItensCarrinho();
         }
 
@@ -483,68 +881,148 @@
             const container = document.getElementById("itensCarrinho");
 
             if (carrinho.length === 0) {
-                container.innerHTML = "<p>Seu carrinho está vazio.</p>";
+                container.innerHTML = "<p style='text-align: center; color: var(--muted);'>Seu pedido está vazio</p>";
                 return;
             }
 
-            container.innerHTML = carrinho.map((item, index) => {
-                const totalItem = item.quantidade * item.precoCentavos;
+            const total = calcularTotal();
+            container.innerHTML = `
+                ${carrinho.map((item, index) => {
+                    const totalItem = item.quantidade * item.precoCentavos;
+                    return `
+                        <div class="item-carrinho">
+                            <div class="item-info">
+                                <p class="item-nome">${item.nome}</p>
+                                <p class="item-preco">${item.quantidade}x ${formatarMoeda(item.precoCentavos)} = ${formatarMoeda(totalItem)}</p>
+                            </div>
+                            <div class="item-acoes">
+                                <button onclick="alterarQuantidade(${index}, -1)">−</button>
+                                <span class="item-quantidade">${item.quantidade}</span>
+                                <button onclick="alterarQuantidade(${index}, 1)">+</button>
+                                <button onclick="removerDoCarrinho(${index})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
+                
+                <div style="background: var(--fundo); padding: 12px; border-radius: 10px; margin-top: 10px; text-align: right;">
+                    <strong style="font-size: 16px; color: var(--cor-primaria);">
+                        Total: ${formatarMoeda(total)}
+                    </strong>
+                </div>
+            `;
+        }
 
-                return `
-          <div class="item-carrinho">
-            <div>
-              <strong>${item.nome}</strong><br>
-              ${item.quantidade}x ${formatarMoeda(item.precoCentavos)}<br>
-              <strong>${formatarMoeda(totalItem)}</strong>
-            </div>
-
-            <div>
-              <button onclick="alterarQuantidade(${index}, -1)">-</button>
-              <button onclick="alterarQuantidade(${index}, 1)">+</button>
-              <button onclick="removerDoCarrinho(${index})">Remover</button>
-            </div>
-          </div>
-        `;
-            }).join("");
+        function limparCarrinho() {
+            if (confirm("Deseja limpar o pedido atual?")) {
+                carrinho = [];
+                atualizarCarrinho();
+                fecharCarrinho();
+            }
         }
 
         async function enviarPedido() {
             const mensagem = document.getElementById("mensagem");
 
             if (carrinho.length === 0) {
-                mensagem.innerText = "Adicione pelo menos um item ao carrinho.";
+                mensagem.classList.remove("sucesso");
+                mensagem.classList.add("erro");
+                mensagem.innerText = "Adicione pelo menos um item ao pedido.";
+                mensagem.style.display = "block";
                 return;
             }
 
             if (modoPreview) {
-                mensagem.innerText = "Preview: pedido não enviado. Layout testado com sucesso.";
+                mensagem.classList.remove("erro");
+                mensagem.classList.add("sucesso");
+                mensagem.innerText = "✓ Preview: layout testado com sucesso!";
+                mensagem.style.display = "block";
                 return;
             }
 
-            const resposta = await fetch("/api/pedidos", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    mesa: numeroMesa,
-                    observacao: document.getElementById("observacao").value,
-                    itens: carrinho
-                })
-            });
+            try {
+                const resposta = await fetch("/api/pedidos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        mesa: numeroMesa,
+                        observacao: document.getElementById("observacao").value,
+                        itens: carrinho
+                    })
+                });
 
-            const dados = await resposta.json();
+                const dados = await resposta.json();
 
-            mensagem.innerText = dados.mensagem || "Pedido enviado!";
+                if (dados.ok) {
+                    mensagem.classList.remove("erro");
+                    mensagem.classList.add("sucesso");
+                    mensagem.innerText = "✓ Pedido enviado para a cozinha!";
 
-            carrinho = [];
-            atualizarCarrinho();
-            renderizarItensCarrinho();
+                    carrinho = [];
+                    atualizarCarrinho();
+                    renderizarItensCarrinho();
+                    document.getElementById("observacao").value = "";
+
+                    setTimeout(() => {
+                        fecharCarrinho();
+                    }, 2000);
+                } else {
+                    mensagem.classList.remove("sucesso");
+                    mensagem.classList.add("erro");
+                    mensagem.innerText = "✗ " + (dados.mensagem || "Erro ao enviar pedido");
+                }
+            } catch (error) {
+                console.error("Erro ao enviar pedido:", error);
+                mensagem.classList.remove("sucesso");
+                mensagem.classList.add("erro");
+                mensagem.innerText = "✗ Erro ao conectar com o servidor";
+            }
+
+            mensagem.style.display = "block";
         }
 
-        carregarConfiguracoes();
-        carregarMesa();
-        atualizarCarrinho();
+        // Inicialização
+        (async function init() {
+            await carregarConfiguracoes();
+            await carregarMesa();
+            await carregarCategoriasEProdutos();
+            atualizarCarrinho();
+        })();
+
+        // ========================
+        // Escutar mudanças em tempo real via Socket.IO
+        // ========================
+        socket.on("connect", () => {
+            console.log("✓ Conectado ao servidor em tempo real");
+        });
+
+        socket.on("categorias_atualizadas", async (novasCategorias) => {
+            console.log("🔄 Categorias foram atualizadas no servidor, recarregando...");
+            categorias = novasCategorias;
+            renderizarCategorias();
+            if (categorias.length > 0) {
+                selecionarCategoria(categorias[0].id);
+            }
+        });
+
+        socket.on("produtos_atualizados", async (novosProdutos) => {
+            console.log("🔄 Produtos foram atualizados no servidor, recarregando...");
+            produtos = novosProdutos;
+
+            // Se há uma categoria ativa, mostra apenas seus produtos
+            if (categoriaAtiva) {
+                const produtosCategoria = produtos.filter(p => p.categoriaId === categoriaAtiva);
+                renderizarProdutos(produtosCategoria);
+            } else {
+                renderizarProdutos([]);
+            }
+        });
+
+        socket.on("disconnect", () => {
+            console.log("✗ Desconectado do servidor");
+        });
     </script>
 </body>
 

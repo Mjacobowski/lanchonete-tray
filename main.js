@@ -257,6 +257,10 @@ function startLocalServer() {
                 mensagem: "Categoria salva com sucesso!",
                 categoria
             });
+
+            // Notificar todos os clientes sobre mudança de categorias
+            io.emit("categorias_atualizadas", listarCategorias());
+            io.emit("produtos_atualizados", listarProdutos());
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -280,6 +284,10 @@ function startLocalServer() {
                 ok: true,
                 categoria
             });
+
+            // Notificar todos os clientes sobre mudança de categorias
+            io.emit("categorias_atualizadas", listarCategorias());
+            io.emit("produtos_atualizados", listarProdutos());
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -305,6 +313,9 @@ function startLocalServer() {
                 mensagem: "Produto salvo com sucesso!",
                 produto
             });
+
+            // Notificar todos os clientes sobre mudança de produtos
+            io.emit("produtos_atualizados", listarProdutos());
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -328,6 +339,9 @@ function startLocalServer() {
                 ok: true,
                 produto
             });
+
+            // Notificar todos os clientes sobre mudança de produtos
+            io.emit("produtos_atualizados", listarProdutos());
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -351,6 +365,9 @@ function startLocalServer() {
                 ok: true,
                 mensagem: "Produto excluído com sucesso."
             });
+
+            // Notificar todos os clientes sobre mudança de produtos
+            io.emit("produtos_atualizados", listarProdutos());
         } catch (error) {
             res.status(400).json({
                 ok: false,
@@ -494,7 +511,7 @@ function createTray() {
     const ip = getLocalIp();
     const url = `http://${ip}:${PORT}`;
 
-    tray = new Tray(path.join(__dirname, "icon.png"));
+    tray = new Tray(path.join(__dirname, "public", "img", "icon.png"));
 
     const menu = Menu.buildFromTemplate([
         {
