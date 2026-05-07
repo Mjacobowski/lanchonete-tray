@@ -11,7 +11,8 @@ Projeto de demonstração de uma aplicação Electron/Node para gerenciar uma la
 
 ## Como começar
 1) Requisitos
-- Node.js e npm instalados (recomendado >= 14.x)
+- Node.js e npm instalados (recomendado >= 18.x)
+- Windows: ferramentas de build para módulos nativos (Visual Studio Build Tools + Python) podem ser necessárias para `better-sqlite3`.
 
 2) Instalação
 ```
@@ -23,7 +24,13 @@ npm install
 npm start
 ```
 
-A aplicação abrirá uma janela Electron com a interface da lanchonete.
+Se houver erro relacionado a módulo nativo/ABI (ex.: `better-sqlite3`), rode:
+```
+npm run rebuild
+npm start
+```
+
+Observação: a aplicação roda como ícone de bandeja do sistema. Use o menu do tray para abrir o painel no navegador.
 
 ## Estrutura do projeto
 - database.js
