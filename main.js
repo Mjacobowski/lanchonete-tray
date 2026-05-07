@@ -1,9 +1,11 @@
 const http = require("http");
 const { Server } = require("socket.io");
-const { app, Tray, Menu, shell, dialog } = require("electron");
 const express = require("express");
 const path = require("path");
 const os = require("os");
+
+const isWebOnly = process.argv.includes("--web-only") || process.env.LANCHONETE_WEB_ONLY === "1";
+let electron = null;
 
 const {
     criarPedido,
@@ -69,6 +71,10 @@ function validarGtin(codigo) {
     return calculado === digitoVerificador;
 }
 
+function sendPublicFile(res, arquivo) {
+    res.sendFile(arquivo, { root: path.resolve(__dirname, "public") });
+}
+
 function startLocalServer() {
     const web = express();
 
@@ -101,40 +107,40 @@ function startLocalServer() {
 
     // Páginas principais
     web.get("/", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "index.html"));
+        sendPublicFile(res, "index.html");
     });
 
     web.get("/balcao", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "balcao.html"));
+        sendPublicFile(res, "balcao.html");
     });
 
     web.get("/manager", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "manager.html"));
+        sendPublicFile(res, "manager.html");
     });
 
     web.get("/manager/cardapio", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "cardapio.html"));
+        sendPublicFile(res, "cardapio.html");
     });
 
     web.get("/manager/configuracoes", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "configuracoes.html"));
+        sendPublicFile(res, "configuracoes.html");
     });
 
     web.get("/cozinha", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "cozinha.html"));
+        sendPublicFile(res, "cozinha.html");
     });
 
     web.get("/painel", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "painel.html"));
+        sendPublicFile(res, "painel.html");
     });
 
     // Importante: precisa vir antes de /mesa/:numero
     web.get("/mesa/preview", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "mesa.html"));
+        sendPublicFile(res, "mesa.html");
     });
 
     web.get("/mesa/:numero", (req, res) => {
-        res.sendFile(path.join(__dirname, "public", "mesa.html"));
+        sendPublicFile(res, "mesa.html");
     });
 
     // API da mesa
@@ -547,6 +553,7 @@ function startLocalServer() {
 }
 
 function createTray() {
+    const { Tray, Menu, shell, dialog } = electron;
     const ip = getLocalIp();
     const url = `http://${ip}:${PORT}`;
 
@@ -583,7 +590,7 @@ function createTray() {
                     server.close();
                 }
 
-                app.quit();
+                electron.app.quit();
             }
         }
     ]);
@@ -592,15 +599,21 @@ function createTray() {
     tray.setContextMenu(menu);
 }
 
-app.whenReady().then(() => {
+if (isWebOnly) {
     startLocalServer();
-    createTray();
+} else {
+    electron = require("electron");
 
-    app.setLoginItemSettings({
-        openAtLogin: true
+    electron.app.whenReady().then(() => {
+        startLocalServer();
+        createTray();
+
+        electron.app.setLoginItemSettings({
+            openAtLogin: true
+        });
     });
-});
 
-app.on("window-all-closed", (event) => {
-    event.preventDefault();
-});
+    electron.app.on("window-all-closed", (event) => {
+        event.preventDefault();
+    });
+}
