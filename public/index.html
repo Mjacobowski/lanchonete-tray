@@ -1,195 +1,111 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lanchonete - Sistema</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Lanchonete - Início</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="layout-base.css">
+    <style>
+        /* Estilos específicos para os botões de acesso rápido */
+        .grid-acesso {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
 
-  <!-- Fontes -->
-  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+        .btn-totem {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-decoration: none;
+            font-family: 'Lilita One', cursive;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            border-radius: 25px;
+            transition: all 0.1s;
+            text-align: center;
+            border: none;
+        }
 
-  <!-- CSS Base -->
-  <link rel="stylesheet" href="layout-base.css">
+        .btn-totem i { font-size: 2.5rem; margin-bottom: 10px; }
 
-  <style>
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
+        /* Cores Estilo BK */
+        .btn-balcao { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
+        .btn-cozinha { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
+        .btn-painel { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
+        .btn-manager { background: #2b1a10; color: #ffb703; box-shadow: 0 10px 0px #1a0f0a; }
 
-    .stat-card {
-      background: var(--card);
-      border-left: 4px solid var(--cor-primaria);
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
+        .btn-totem:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0px #000;
+        }
 
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--cor-primaria);
-      margin: 10px 0 5px;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      margin-top: 20px;
-    }
-  </style>
+        .status-badge {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+    </style>
 </head>
-
 <body>
-  <!-- LAYOUT COM SIDEBAR -->
-  <div class="app-layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">🍔</div>
-        <h1>Lanchonete</h1>
-      </div>
+    <div class="app-layout">
+        <main class="main-content">
+            <header class="top-bar">
+                <h2 class="top-bar-title">Sistema de Lanchonete</h2>
+                <div id="relogio" style="font-family: 'Lilita One'; color: #d62300; font-size: 1.5rem;">10:53</div>
+            </header>
 
-      <nav class="nav-menu">
-        <a href="/" class="nav-item active">
-          <span class="nav-item-icon">🏠</span>
-          <span>Início</span>
-        </a>
+            <div class="content-area">
+                <h1 style="font-family: 'Lilita One'; color: #d62300; font-size: 2.5rem;">Bem-vindo ao Sistema</h1>
+                
+                <div class="grid-4 mt-4">
+                    <div class="card">
+                        <p style="font-weight: 600; color: #432818;">Pedidos Hoje</p>
+                        <h2 style="font-size: 3rem; margin: 0;">0</h2>
+                    </div>
+                    <div class="card">
+                        <p style="font-weight: 600; color: #432818;">Em Preparação</p>
+                        <h2 style="font-size: 3rem; margin: 0; color: #d62300;">0</h2>
+                    </div>
+                    <div class="card">
+                        <p style="font-weight: 600; color: #432818;">Mesas Ocupadas</p>
+                        <h2 style="font-size: 3rem; margin: 0;">0</h2>
+                    </div>
+                    <div class="card">
+                        <p style="font-weight: 600; color: #432818;">Status</p>
+                        <div style="display: flex; align-items: center; margin-top: 15px;">
+                            <span class="status-badge"></span>
+                            <span style="font-weight: bold;">Online</span>
+                        </div>
+                    </div>
+                </div>
 
-        <a href="/balcao" class="nav-item">
-          <span class="nav-item-icon">💳</span>
-          <span>Balcão</span>
-        </a>
+                <h2 class="mt-5" style="font-family: 'Lilita One'; color: #432818;">Acesso Rápido</h2>
+                <div class="grid-acesso">
+                    <a href="balcao.html" class="btn-totem btn-balcao">🛒 Balcão</a>
+                    <a href="cozinha.html" class="btn-totem btn-cozinha">👨‍🍳 Cozinha</a>
+                    <a href="painel.html" class="btn-totem btn-painel">📺 Painel</a>
+                    <a href="manager.html" class="btn-totem btn-manager">⚙️ Gerenciador</a>
+                </div>
 
-        <a href="/cozinha" class="nav-item">
-          <span class="nav-item-icon">👨‍🍳</span>
-          <span>Cozinha</span>
-        </a>
-
-        <a href="/painel" class="nav-item">
-          <span class="nav-item-icon">📊</span>
-          <span>Painel</span>
-        </a>
-
-        <div class="nav-section-title">Gerenciamento</div>
-
-        <a href="/manager" class="nav-item">
-          <span class="nav-item-icon">⚙️</span>
-          <span>Manager</span>
-        </a>
-
-        <a href="/manager/cardapio" class="nav-item">
-          <span class="nav-item-icon">📋</span>
-          <span>Cardápio</span>
-        </a>
-
-        <a href="/manager/configuracoes" class="nav-item">
-          <span class="nav-item-icon">🎨</span>
-          <span>Configurações</span>
-        </a>
-      </nav>
-    </aside>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="main-content">
-      <div class="top-bar">
-        <h2 class="top-bar-title">Sistema de Lanchonete</h2>
-        <div class="top-bar-actions">
-          <span style="color: var(--muted);" id="hora">00:00</span>
-        </div>
-      </div>
-
-      <div class="content-area">
-        <h1 style="font-family: var(--font-destaque); font-size: 28px; color: var(--cor-primaria); margin-bottom: 24px;">
-          Bem-vindo ao Sistema
-        </h1>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Pedidos Hoje</div>
-            <div class="stat-value" id="totalPedidos">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">Em Preparação</div>
-            <div class="stat-value" id="emPreparacao">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">Mesas Ocupadas</div>
-            <div class="stat-value" id="mesasOcupadas">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-label">Status</div>
-            <div class="stat-value">🟢</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3>Acesso Rápido</h3>
-          </div>
-          <div class="quick-actions">
-            <a href="/balcao" class="btn btn-primary">
-              💳 Balcão
-            </a>
-            <a href="/cozinha" class="btn btn-primary">
-              👨‍🍳 Cozinha
-            </a>
-            <a href="/painel" class="btn btn-primary">
-              📊 Painel
-            </a>
-            <a href="/manager" class="btn btn-secondary">
-              ⚙️ Gerenciador
-            </a>
-          </div>
-        </div>
-
-        <div class="card mt-4">
-          <div class="card-header">
-            <h3>Informações do Sistema</h3>
-          </div>
-          <p style="margin: 0;">✓ Sistema rodando normalmente<br>
-            ✓ Banco de dados conectado<br>
-            ✓ Todas as telas disponíveis
-          </p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Script de Tema -->
-  <script src="theme-loader.js"></script>
-
-  <script>
-    function atualizarHora() {
-      const agora = new Date();
-      const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('hora').textContent = hora;
-    }
-
-    atualizarHora();
-    setInterval(atualizarHora, 1000);
-
-    // Marcar link ativo
-    document.querySelectorAll('.nav-item').forEach(link => {
-      const href = link.getAttribute('href');
-      if (window.location.pathname === href) {
-        link.classList.add('active');
-      }
-    });
-  </script>
+                <div class="card mt-5">
+                    <h3 style="border-bottom: 2px dashed #e2d1c3; padding-bottom: 10px;">Informações do Sistema</h3>
+                    <ul style="list-style: none; padding: 0; margin-top: 15px; font-weight: 500;">
+                        <li style="margin-bottom: 8px;">✅ Estilo BK Padronizado (Off-White & Marrom)</li>
+                        <li style="margin-bottom: 8px;">✅ Banco de dados conectado via WebSocket</li>
+                        <li>✅ Interface de alta performance</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
 </body>
-
 </html>
