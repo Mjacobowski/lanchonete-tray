@@ -2,18 +2,28 @@
    SAGA GOURMET - IDENTIDADE VISUAL 2.0
    Cores: Vermelho (Fome), Amarelo (Destaque), Marrom (Grelhado)
    ========================================= */
-
 :root {
-    --vermelho-bk: #d62300;
-    --amarelo-bk: #ffb703;
-    --marrom-gourmet: #432818;
-    --marrom-dark: #2b1a10;
-    --creme-fundo: #f5f5f5;
-    --branco: #ffffff;
-    --sombra: 0 8px 25px rgba(0,0,0,0.15);
-    --radius-gourmet: 25px;
+    /* Cores Oficiais BK (Aproximadas para Web) */
+    --bk-vermelho: #D62300;
+    --bk-marrom: #502D16;
+    --bk-laranja: #F5A100;
+    --bk-off-white: #F5EBDD; /* O tom creme clássico do BK */
+    --bk-branco: #FFFFFF;
+    
+    /* Mapeamento para o Sistema */
+    --cor-primaria: var(--bk-vermelho);
+    --cor-secundaria: var(--bk-marrom);
+    --cor-destaque: var(--bk-laranja);
+    --fundo: var(--bk-off-white);
+    --card: var(--bk-branco);
+    --texto: var(--bk-marrom);
+    --muted: #857366;
+    --borda: #E1D7C6;
+    
+    /* Tipografia */
+    --font-principal: 'Poppins', sans-serif;
+    --font-destaque: 'Lilita One', cursive; /* Substituta próxima da Flame Sans */
 }
-
 /* Reset e Comportamento Geral */
 * {
     box-sizing: border-box;
