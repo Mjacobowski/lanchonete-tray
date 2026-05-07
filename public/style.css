@@ -1,30 +1,27 @@
 /* =========================================
-   SAGA GOURMET - IDENTIDADE VISUAL 2.0
-   Cores: Vermelho (Fome), Amarelo (Destaque), Marrom (Grelhado)
+   SAGA GOURMET - IDENTIDADE VISUAL ESTILO BK
+   Paleta: Off-White, Marrom, Vermelho e Laranja
    ========================================= */
+
 :root {
-    /* Cores Oficiais BK (Aproximadas para Web) */
+    /* Cores Oficiais BK (Aproximadas) */
     --bk-vermelho: #D62300;
     --bk-marrom: #502D16;
     --bk-laranja: #F5A100;
-    --bk-off-white: #F5EBDD; /* O tom creme clássico do BK */
+    --bk-off-white: #F5EBDD; /* Fundo Creme Clássico */
     --bk-branco: #FFFFFF;
     
-    /* Mapeamento para o Sistema */
-    --cor-primaria: var(--bk-vermelho);
-    --cor-secundaria: var(--bk-marrom);
-    --cor-destaque: var(--bk-laranja);
+    /* Variáveis de Semântica */
     --fundo: var(--bk-off-white);
-    --card: var(--bk-branco);
     --texto: var(--bk-marrom);
-    --muted: #857366;
-    --borda: #E1D7C6;
-    
-    /* Tipografia */
-    --font-principal: 'Poppins', sans-serif;
-    --font-destaque: 'Lilita One', cursive; /* Substituta próxima da Flame Sans */
+    --primaria: var(--bk-vermelho);
+    --secundaria: var(--bk-marrom);
+    --destaque: var(--bk-laranja);
+    --sombra: 0 8px 20px rgba(80, 45, 22, 0.15);
+    --radius-bk: 20px;
 }
-/* Reset e Comportamento Geral */
+
+/* 1. Reset e Comportamento Geral */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -33,195 +30,199 @@
 }
 
 body {
-    background-color: var(--creme-fundo);
+    background-color: var(--fundo);
     font-family: 'Poppins', sans-serif;
-    color: var(--marrom-gourmet);
+    color: var(--texto);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    line-height: 1.5;
 }
 
-/* Tipografia de Impacto */
+/* 2. Tipografia de Impacto */
 h1, h2, h3, #titulo {
     font-family: 'Lilita One', cursive;
     text-transform: uppercase;
-    color: var(--vermelho-bk);
-    letter-spacing: 1px;
+    color: var(--primaria);
+    letter-spacing: 0.5px;
 }
 
-/* --- HEADER (MANAGER, COZINHA, BALCÃO) --- */
+/* 3. Header e Navegação Superior */
 header {
-    background-color: var(--vermelho-bk);
-    color: var(--amarelo-bk);
-    padding: 20px 40px;
+    background-color: var(--primaria);
+    color: var(--bk-branco);
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-bottom: 5px solid var(--destaque);
 }
 
 header h1 {
-    color: var(--branco);
-    font-size: 2.2rem;
+    color: var(--bk-branco);
+    font-size: 1.8rem;
     margin: 0;
 }
 
 #relogio {
     font-family: 'Lilita One', cursive;
-    font-size: 2rem;
-    color: var(--amarelo-bk);
+    font-size: 1.8rem;
+    color: var(--destaque);
 }
 
-/* --- ESTILO PARA MESA.HTML --- */
+/* 4. Layout Principal */
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+}
+
 #titulo {
     text-align: center;
-    font-size: 3.5rem;
-    margin: 40px 0 10px 0;
-    text-shadow: 2px 2px 0px var(--amarelo-bk);
+    font-size: 3rem;
+    margin: 30px 0 5px 0;
+    color: var(--primaria);
+    text-shadow: 2px 2px 0px var(--bk-branco);
 }
 
-p {
+.subtitulo {
     text-align: center;
     font-weight: 600;
-    color: var(--marrom-gourmet);
+    color: var(--secundaria);
     margin-bottom: 30px;
+    opacity: 0.8;
 }
 
-/* Botão de Pedido (Estilo Totem) */
-button {
+/* 5. Botões (Estilo Totem BK) */
+button, .btn-bk {
     display: block;
-    width: 85%;
-    max-width: 450px;
-    margin: 25px auto;
-    padding: 25px;
+    width: 100%;
+    max-width: 400px;
+    margin: 15px auto;
+    padding: 20px;
     border: none;
-    border-radius: var(--radius-gourmet);
-    background-color: var(--amarelo-bk);
-    color: var(--marrom-dark);
+    border-radius: 50px; /* Botões arredondados estilo APP */
+    background-color: var(--destaque);
+    color: var(--secundaria);
     font-family: 'Lilita One', cursive;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    text-transform: uppercase;
     cursor: pointer;
-    box-shadow: 0 10px 0px #cc9200; /* Efeito 3D */
-    transition: all 0.1s;
+    box-shadow: 0 6px 0px #CC8600; /* Efeito 3D */
+    transition: all 0.1s ease;
+}
+
+button:hover {
+    background-color: #ffc13b;
 }
 
 button:active {
     transform: translateY(4px);
-    box-shadow: 0 6px 0px #cc9200;
+    box-shadow: 0 2px 0px #CC8600;
 }
 
-/* --- ESTILO PARA PAINEL.HTML (TV DE PEDIDOS) --- */
-main {
-    padding: 30px;
+/* Botão Secundário / Cancelar */
+button.btn-outline {
+    background-color: transparent;
+    border: 3px solid var(--secundaria);
+    color: var(--secundaria);
+    box-shadow: none;
+}
+
+/* 6. Painel de Pedidos (Cozinha/TV) */
+.grade-painel {
     display: grid;
-    gap: 30px;
-    flex: 1;
-}
-
-/* Grid de duas colunas para o Painel */
-body:has(#preparando) main {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
 }
 
 .coluna {
-    background: var(--marrom-gourmet);
-    border-radius: var(--radius-gourmet);
-    padding: 25px;
-    border: 4px solid var(--vermelho-bk);
+    background: var(--secundaria); /* Marrom BK */
+    border-radius: var(--radius-bk);
+    padding: 20px;
+    border: 4px solid var(--primaria);
 }
 
 .coluna h2 {
-    color: var(--amarelo-bk);
+    color: var(--destaque);
     text-align: center;
-    font-size: 2.5rem;
-    border-bottom: 2px dashed var(--vermelho-bk);
+    font-size: 2rem;
+    border-bottom: 2px dashed rgba(245, 161, 0, 0.3);
     padding-bottom: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
-.pedido {
-    background: var(--branco);
-    color: var(--marrom-dark);
-    margin-bottom: 20px;
-    padding: 25px;
-    border-radius: 20px;
+/* 7. Cards de Pedido Item */
+.pedido, .pedido-item {
+    background: var(--bk-branco);
+    color: var(--secundaria);
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 15px;
     box-shadow: var(--sombra);
     animation: slideIn 0.3s ease-out;
+    border-left: 10px solid var(--primaria); /* Destaque lateral */
 }
 
 .pedido strong {
     font-family: 'Lilita One', cursive;
-    color: var(--vermelho-bk);
-    font-size: 2.2rem;
+    color: var(--primaria);
+    font-size: 2rem;
     display: block;
 }
 
-/* --- ESTILO PARA BALCAO.HTML --- */
-#pedidos .pedido-item { /* Simulação para o container do script */
-    border: 3px solid var(--marrom-gourmet);
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 15px;
-}
-
-/* Botões específicos do Balcão */
-#pedidos button {
-    display: inline-block;
-    width: auto;
-    font-size: 1.1rem;
-    padding: 12px 25px;
-    margin-right: 10px;
-    background-color: var(--marrom-gourmet);
-    color: white;
-    box-shadow: none;
-}
-
-#pedidos button:hover {
-    background-color: var(--vermelho-bk);
-}
-
-/* --- INDEX.HTML (MENU DO SERVIDOR) --- */
+/* 8. Estilo de Listas (Index/Menu) */
 ul {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
-    padding: 50px;
+    gap: 15px;
+    padding: 20px;
 }
 
 ul li a {
     text-decoration: none;
-    background: var(--marrom-dark);
-    color: var(--amarelo-bk);
-    padding: 20px 40px;
-    border-radius: 15px;
+    background: var(--bk-branco);
+    color: var(--secundaria);
+    padding: 15px 30px;
+    border-radius: 50px;
     font-family: 'Lilita One', cursive;
-    font-size: 1.4rem;
-    border: 3px solid var(--vermelho-bk);
+    font-size: 1.2rem;
+    border: 3px solid var(--secundaria);
     transition: 0.3s;
+    display: inline-block;
 }
 
 ul li a:hover {
-    background: var(--vermelho-bk);
-    color: white;
-    transform: rotate(-2deg);
+    background: var(--primaria);
+    color: var(--bk-branco);
+    border-color: var(--primaria);
+    transform: scale(1.05);
 }
 
-/* --- RODAPÉ SAGA GOURMET --- */
+/* 9. Rodapé */
 .footer-saga {
     text-align: center;
     padding: 20px;
-    background: var(--marrom-dark);
-    color: var(--branco);
-    font-size: 0.85rem;
-    font-weight: 400;
+    background: var(--secundaria);
+    color: var(--bk-off-white);
+    font-size: 0.9rem;
     margin-top: auto;
-    border-top: 5px solid var(--vermelho-bk);
+    border-top: 6px solid var(--primaria);
 }
 
+/* 10. Animações e Responsividade */
 @keyframes slideIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 768px) {
+    #titulo { font-size: 2.2rem; }
+    button { width: 90%; font-size: 1.2rem; }
+    header h1 { font-size: 1.4rem; }
 }
