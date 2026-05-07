@@ -1,154 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;600&display=swap');
 
 :root {
-    /* Paleta Oficial */
     --vermelho-bk: #d62300;
     --amarelo-bk: #ffb703;
     --marrom-gourmet: #432818;
     --marrom-dark: #2b1a10;
-    --creme-fundo: #f5ebe0; /* Off-white mais quente */
+    --creme-fundo: #f5ebe0; /* Off-white quente */
     --branco: #ffffff;
-    --borda: #e2d1c3;
-    
-    --font-principal: 'Poppins', sans-serif;
+    --sombra: 0 8px 25px rgba(0,0,0,0.1);
     --font-destaque: 'Lilita One', cursive;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    --font-principal: 'Poppins', sans-serif;
 }
 
 body {
+    background-color: var(--creme-fundo);
     font-family: var(--font-principal);
-    background: var(--creme-fundo);
     color: var(--marrom-gourmet);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    margin: 0;
 }
 
-
+/* SIDEBAR PROFISSIONAL */
 .sidebar {
-    background: var(--marrom-dark); /* Troca do azul pelo Marrom */
-    color: var(--branco);
-    padding: 24px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
-    border-right: 4px solid var(--vermelho-bk); /* Detalhe lateral */
+    background: var(--marrom-dark) !important;
+    border-right: 5px solid var(--vermelho-bk);
 }
 
 .brand h1 {
     font-family: var(--font-destaque);
-    font-size: 22px;
-    color: var(--amarelo-bk); /* Nome em Amarelo */
-    text-transform: uppercase;
+    color: var(--amarelo-bk) !important;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 .nav-item {
-    font-family: var(--font-principal);
+    color: #e2d1c3 !important;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
-    border-radius: 12px;
-    padding: 12px 14px;
-    transition: all 0.3s;
+    transition: 0.3s;
 }
 
 .nav-item:hover {
-    background: var(--marrom-gourmet);
-    color: var(--amarelo-bk);
+    background: var(--marrom-gourmet) !important;
+    color: var(--amarelo-bk) !important;
 }
 
 .nav-item.active {
-    background: var(--vermelho-bk); /* Item ativo em Vermelho */
-    color: white;
+    background: var(--vermelho-bk) !important;
+    color: white !important;
     font-family: var(--font-destaque);
-    text-transform: uppercase;
 }
 
-
-.top-bar {
-    background: var(--branco);
-    border-bottom: 3px solid var(--vermelho-bk);
-    padding: 16px 24px;
-}
-
-.top-bar-title {
-    font-family: var(--font-destaque);
-    font-size: 24px;
-    color: var(--vermelho-bk);
-    text-transform: uppercase;
-}
-
-
-.btn {
-    font-family: var(--font-destaque);
-    text-transform: uppercase;
-    border-radius: 15px;
-    padding: 12px 24px;
-    cursor: pointer;
-    transition: all 0.1s;
-    border: none;
+/* BOTÕES ESTILO TOTEM BK */
+.btn-bk {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 18px 30px;
+    border: none;
+    border-radius: 15px;
+    font-family: var(--font-destaque);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-decoration: none;
     gap: 10px;
 }
 
-/* Botão Principal (Acesso Rápido) */
-.btn-primary, .btn-red {
-    background: var(--vermelho-bk);
+/* Botão Vermelho */
+.btn-red {
+    background-color: var(--vermelho-bk);
     color: white;
-    box-shadow: 0 5px 0px #8b1700; /* Efeito 3D */
+    box-shadow: 0 6px 0px #8b1700;
 }
 
-.btn-primary:active {
-    transform: translateY(3px);
+.btn-red:active {
+    transform: translateY(4px);
     box-shadow: 0 2px 0px #8b1700;
 }
 
-/* Botão Amarelo (Destaque) */
-.btn-warning, .btn-yellow {
-    background: var(--amarelo-bk);
+/* Botão Amarelo */
+.btn-yellow {
+    background-color: var(--amarelo-bk);
     color: var(--marrom-dark);
-    box-shadow: 0 5px 0px #cc9200;
+    box-shadow: 0 6px 0px #cc9200;
 }
 
-.btn-warning:active {
-    transform: translateY(3px);
+.btn-yellow:active {
+    transform: translateY(4px);
     box-shadow: 0 2px 0px #cc9200;
 }
 
-/* =========================================
-   CARDS E INFO
-   ========================================= */
+/* Botão Dark (Gerenciador) */
+.btn-dark-bk {
+    background-color: var(--marrom-dark);
+    color: var(--amarelo-bk);
+    box-shadow: 0 6px 0px #1a0f0a;
+}
 
+/* CARDS DA DASHBOARD */
 .card {
     background: var(--branco);
-    border: 2px solid var(--borda);
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 20px !important;
+    border: none !important;
     box-shadow: var(--sombra);
-    transition: transform 0.2s;
+    border-left: 8px solid var(--vermelho-bk) !important;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card-header h3 {
+.card h3, .top-bar-title {
     font-family: var(--font-destaque);
     color: var(--vermelho-bk);
-    border-bottom: 2px dashed var(--borda);
-    padding-bottom: 10px;
-}
-
-.badge-status {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    text-transform: uppercase;
 }
