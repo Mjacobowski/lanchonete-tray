@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Configurações da Loja</title>
-    <link rel="stylesheet" href="layout-base.css">
+    <link rel="stylesheet" href="/layout-base.css">
 
     <style>
         :root {
@@ -25,7 +25,7 @@
             color: var(--texto);
         }
 
-        header {
+        .admin-page-header {
             background: var(--cor-secundaria);
             color: white;
             padding: 24px 32px;
@@ -35,11 +35,11 @@
             gap: 16px;
         }
 
-        header h1 {
+        .admin-page-header h1 {
             margin: 0;
         }
 
-        header p {
+        .admin-page-header p {
             margin: 6px 0 0;
             opacity: 0.85;
         }
@@ -53,8 +53,7 @@
             font-weight: bold;
         }
 
-        main {
-            padding: 32px;
+        .configuracoes-content {
             display: grid;
             grid-template-columns: 1.3fr 0.7fr;
             gap: 24px;
@@ -203,9 +202,8 @@
         }
 
         @media (max-width: 900px) {
-            main {
+            .configuracoes-content {
                 grid-template-columns: 1fr;
-                padding: 18px;
             }
 
             .grid {
@@ -220,7 +218,7 @@
                 height: 620px;
             }
 
-            header {
+            .admin-page-header {
                 padding: 20px;
             }
         }
@@ -229,16 +227,66 @@
 </head>
 
 <body>
-    <header>
-        <div>
-            <h1>Configurações da Loja</h1>
-            <p>Personalize os dados e a aparência do sistema.</p>
-        </div>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🍔</div>
+                <h1 data-store-name>Lanchonete</h1>
+            </div>
 
-        <a class="voltar" href="/manager">Voltar</a>
-    </header>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Início</span>
+                </a>
 
-    <main>
+                <a href="/balcao" class="nav-item">
+                    <span class="nav-item-icon">💳</span>
+                    <span>Balcão</span>
+                </a>
+
+                <a href="/cozinha" class="nav-item">
+                    <span class="nav-item-icon">👨‍🍳</span>
+                    <span>Cozinha</span>
+                </a>
+
+                <a href="/painel" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Painel</span>
+                </a>
+
+                <div class="nav-section-title">Gerenciamento</div>
+
+                <a href="/manager" class="nav-item">
+                    <span class="nav-item-icon">⚙️</span>
+                    <span>Manager</span>
+                </a>
+
+                <a href="/manager/configuracoes" class="nav-item">
+                    <span class="nav-item-icon">🎨</span>
+                    <span>Configurações</span>
+                </a>
+
+                <a href="/manager/cardapio" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Cardápio</span>
+                </a>
+            </nav>
+        </aside>
+
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div>
+                    <h2 class="top-bar-title">Configurações da Loja</h2>
+                    <p class="top-bar-subtitle">Personalize os dados e a aparência do sistema.</p>
+                </div>
+                <div class="top-bar-actions">
+                    <a class="btn btn-primary" href="/manager">Manager</a>
+                </div>
+            </header>
+
+            <div class="content-area configuracoes-content">
         <section class="card">
             <h2>Dados da loja</h2>
 
@@ -531,6 +579,8 @@
 
         carregarConfiguracoes();
     </script>
+    <script src="/theme-loader.js"></script>
+    <script src="/layout-shell.js"></script>
 </body>
 
 </html>

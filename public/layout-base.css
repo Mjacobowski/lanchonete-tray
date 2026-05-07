@@ -251,3 +251,400 @@ select {
 
 .mt-4 { margin-top: 24px; }
 .mt-5 { margin-top: 36px; }
+
+/* Sidebar retrátil por hover */
+.app-layout:has(.sidebar) {
+    grid-template-columns: 86px 1fr;
+    transition: grid-template-columns 0.18s ease;
+}
+
+.app-layout:has(.sidebar:hover),
+.app-layout.sidebar-pinned {
+    grid-template-columns: 280px 1fr;
+}
+
+.sidebar {
+    overflow: hidden;
+    transition: padding 0.18s ease, width 0.18s ease;
+}
+
+.app-layout:has(.sidebar) .sidebar {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.app-layout:has(.sidebar:hover) .sidebar,
+.app-layout.sidebar-pinned .sidebar {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.app-layout:has(.sidebar) .brand {
+    justify-content: center;
+}
+
+.app-layout:has(.sidebar:hover) .brand,
+.app-layout.sidebar-pinned .brand {
+    justify-content: flex-start;
+}
+
+.app-layout:has(.sidebar) .brand h1,
+.app-layout:has(.sidebar) .nav-item span:not(.nav-item-icon),
+.app-layout:has(.sidebar) .nav-section-title,
+.app-layout:has(.sidebar) .sidebar-footer {
+    opacity: 0;
+    width: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.12s ease, max-width 0.18s ease;
+}
+
+.app-layout:has(.sidebar:hover) .brand h1,
+.app-layout:has(.sidebar:hover) .nav-item span:not(.nav-item-icon),
+.app-layout:has(.sidebar:hover) .nav-section-title,
+.app-layout:has(.sidebar:hover) .sidebar-footer,
+.app-layout.sidebar-pinned .brand h1,
+.app-layout.sidebar-pinned .nav-item span:not(.nav-item-icon),
+.app-layout.sidebar-pinned .nav-section-title,
+.app-layout.sidebar-pinned .sidebar-footer {
+    opacity: 1;
+    width: auto;
+    max-width: 220px;
+    pointer-events: auto;
+}
+
+.app-layout:has(.sidebar) .nav-item {
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.app-layout:has(.sidebar:hover) .nav-item,
+.app-layout.sidebar-pinned .nav-item {
+    justify-content: flex-start;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.app-layout:has(.sidebar) .nav-item-icon {
+    min-width: 24px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.app-layout:has(.sidebar) .brand-icon {
+    margin: 0 auto;
+}
+
+.app-layout:has(.sidebar:hover) .brand-icon,
+.app-layout.sidebar-pinned .brand-icon {
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .app-layout:has(.sidebar),
+    .app-layout:has(.sidebar:hover),
+    .app-layout.sidebar-pinned {
+        grid-template-columns: 1fr;
+    }
+
+    .app-layout:has(.sidebar) .brand,
+    .app-layout:has(.sidebar) .nav-item {
+        justify-content: flex-start;
+    }
+
+    .app-layout:has(.sidebar) .brand h1,
+    .app-layout:has(.sidebar) .nav-item span:not(.nav-item-icon),
+    .app-layout:has(.sidebar) .nav-section-title,
+    .app-layout:has(.sidebar) .sidebar-footer {
+        opacity: 1;
+        width: auto;
+        max-width: none;
+        pointer-events: auto;
+    }
+
+    .app-layout:has(.sidebar) .brand-icon {
+        margin: 0;
+    }
+}
+
+/* Shell global único: sidebar + topbar pertencem ao app, páginas entregam só conteúdo. */
+.app-shell-global {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 86px 1fr;
+    transition: grid-template-columns 0.18s ease;
+}
+
+.app-shell-global:has(.sidebar:hover) {
+    grid-template-columns: 280px 1fr;
+}
+
+.app-shell-global .app-sidebar-global {
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.app-shell-global .app-topbar-global {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+}
+
+.top-bar-heading {
+    min-width: 0;
+}
+
+.top-bar-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.app-shell-global .top-bar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.app-shell-global .top-bar-actions:empty {
+    display: none;
+}
+
+.app-shell-global .content-area > header,
+.app-shell-global .content-area > .top-bar,
+.app-shell-global .content-area > .sidebar,
+.app-shell-global .content-area > .app-layout {
+    display: none !important;
+}
+
+.app-shell-global.sidebar-full-hide {
+    grid-template-columns: 1fr;
+}
+
+.app-shell-global.sidebar-full-hide .app-sidebar-global {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 280px;
+    z-index: 70;
+    transform: translateX(calc(-100% + 10px));
+    transition: transform 0.18s ease;
+}
+
+.app-shell-global.sidebar-full-hide .app-sidebar-global:hover {
+    transform: translateX(0);
+}
+
+.app-shell-global.sidebar-full-hide .main-content {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+    .app-shell-global,
+    .app-shell-global:has(.sidebar:hover) {
+        grid-template-columns: 86px 1fr;
+    }
+
+    .app-shell-global .sidebar {
+        border-right: 5px solid var(--cor-primaria);
+        border-bottom: 0;
+    }
+
+    .app-shell-global:has(.sidebar:hover) {
+        grid-template-columns: 280px 1fr;
+    }
+
+    .app-shell-global .content-area {
+        padding: 18px;
+    }
+}
+
+/* Relógio padronizado em qualquer topbar */
+.top-bar-actions #hora,
+#hora,
+#relogio {
+    font-family: var(--font-destaque) !important;
+    color: var(--cor-primaria) !important;
+    font-size: 1.5rem !important;
+    letter-spacing: 0.03em;
+    line-height: 1;
+}
+
+.top-bar-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+/* Correção global: telas com app-layout sempre mantêm sidebar lateral. */
+@media (max-width: 900px) {
+    .app-layout:has(.sidebar),
+    .app-layout:has(.sidebar:hover),
+    .app-layout.sidebar-pinned {
+        grid-template-columns: 86px 1fr !important;
+    }
+
+    .app-layout:has(.sidebar:hover),
+    .app-layout.sidebar-pinned {
+        grid-template-columns: 280px 1fr !important;
+    }
+
+    .app-layout:has(.sidebar) .sidebar {
+        border-right: 5px solid var(--cor-primaria) !important;
+        border-bottom: 0 !important;
+        min-height: 100vh;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .app-layout:has(.sidebar) .brand {
+        justify-content: center !important;
+    }
+
+    .app-layout:has(.sidebar:hover) .brand,
+    .app-layout.sidebar-pinned .brand {
+        justify-content: flex-start !important;
+    }
+
+    .app-layout:has(.sidebar) .brand h1,
+    .app-layout:has(.sidebar) .nav-item span:not(.nav-item-icon),
+    .app-layout:has(.sidebar) .nav-section-title,
+    .app-layout:has(.sidebar) .sidebar-footer {
+        opacity: 0 !important;
+        width: 0 !important;
+        max-width: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        pointer-events: none !important;
+    }
+
+    .app-layout:has(.sidebar:hover) .brand h1,
+    .app-layout:has(.sidebar:hover) .nav-item span:not(.nav-item-icon),
+    .app-layout:has(.sidebar:hover) .nav-section-title,
+    .app-layout:has(.sidebar:hover) .sidebar-footer,
+    .app-layout.sidebar-pinned .brand h1,
+    .app-layout.sidebar-pinned .nav-item span:not(.nav-item-icon),
+    .app-layout.sidebar-pinned .nav-section-title,
+    .app-layout.sidebar-pinned .sidebar-footer {
+        opacity: 1 !important;
+        width: auto !important;
+        max-width: 220px !important;
+        pointer-events: auto !important;
+    }
+
+    .app-layout:has(.sidebar) .nav-item {
+        justify-content: center !important;
+    }
+
+    .app-layout:has(.sidebar:hover) .nav-item,
+    .app-layout.sidebar-pinned .nav-item {
+        justify-content: flex-start !important;
+    }
+
+    .app-layout:has(.sidebar) .brand-icon {
+        margin: 0 auto !important;
+    }
+
+    .app-layout:has(.sidebar:hover) .brand-icon,
+    .app-layout.sidebar-pinned .brand-icon {
+        margin: 0 !important;
+    }
+}
+
+/* Padronização visual das telas administrativas antigas dentro do shell global. */
+.cardapio-content,
+.configuracoes-content {
+    align-items: start;
+}
+
+.cardapio-content .card,
+.configuracoes-content .card {
+    border: 1px solid var(--borda) !important;
+    border-left: 8px solid var(--cor-primaria) !important;
+    border-radius: 20px !important;
+    background: var(--card) !important;
+    box-shadow: var(--sombra) !important;
+}
+
+.cardapio-content h2,
+.configuracoes-content h2 {
+    margin: 0 0 10px !important;
+    font-family: var(--font-destaque) !important;
+    color: var(--cor-primaria) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.cardapio-content h3,
+.configuracoes-content h3 {
+    font-family: var(--font-destaque) !important;
+    color: var(--cor-primaria) !important;
+}
+
+.cardapio-content p,
+.configuracoes-content p {
+    color: var(--muted) !important;
+    line-height: 1.55;
+}
+
+.cardapio-content label,
+.configuracoes-content label {
+    color: var(--cor-secundaria);
+    font-weight: 700;
+}
+
+.cardapio-content input,
+.cardapio-content textarea,
+.cardapio-content select,
+.configuracoes-content input,
+.configuracoes-content textarea,
+.configuracoes-content select {
+    border: 1px solid var(--borda) !important;
+    border-radius: 14px !important;
+    background: #fff !important;
+    color: var(--texto) !important;
+    font-family: var(--font-principal) !important;
+}
+
+.cardapio-content input:focus,
+.cardapio-content textarea:focus,
+.cardapio-content select:focus,
+.configuracoes-content input:focus,
+.configuracoes-content textarea:focus {
+    outline: 3px solid color-mix(in srgb, var(--cor-primaria) 22%, transparent) !important;
+    border-color: var(--cor-primaria) !important;
+}
+
+.cardapio-content button,
+.configuracoes-content button,
+.configuracoes-content .preview-header a {
+    border: 0 !important;
+    border-radius: 14px !important;
+    font-family: var(--font-destaque) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.02em;
+    box-shadow: none !important;
+}
+
+.cardapio-content button,
+.configuracoes-content button {
+    background: var(--cor-primaria) !important;
+    color: white !important;
+}
+
+.cardapio-content button.secundario,
+.cardapio-content button.neutro,
+.configuracoes-content button.secundario,
+.configuracoes-content button.neutro {
+    background: var(--cor-secundaria) !important;
+    color: var(--cor-destaque) !important;
+}
+
+.configuracoes-content .preview {
+    top: 100px !important;
+}

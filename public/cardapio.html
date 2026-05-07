@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cardápio</title>
-    <link rel="stylesheet" href="layout-base.css">
+    <link rel="stylesheet" href="/layout-base.css">
 
     <style>
         :root {
@@ -30,7 +30,7 @@
             color: var(--texto);
         }
 
-        header {
+        .admin-page-header {
             background: var(--cor-secundaria);
             color: white;
             padding: 24px 32px;
@@ -40,11 +40,11 @@
             gap: 16px;
         }
 
-        header h1 {
+        .admin-page-header h1 {
             margin: 0;
         }
 
-        header p {
+        .admin-page-header p {
             margin: 6px 0 0;
             opacity: 0.85;
         }
@@ -58,8 +58,7 @@
             font-weight: bold;
         }
 
-        main {
-            padding: 32px;
+        .cardapio-content {
             display: grid;
             gap: 24px;
         }
@@ -295,8 +294,8 @@
         }
 
         @media (max-width: 980px) {
-            main {
-                padding: 18px;
+            .cardapio-content {
+                padding: 0;
             }
 
             .grid-principal,
@@ -314,16 +313,66 @@
 </head>
 
 <body>
-    <header>
-        <div>
-            <h1>Gerenciar Cardápio</h1>
-            <p>Cadastre categorias e produtos do sistema.</p>
-        </div>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🍔</div>
+                <h1 data-store-name>Lanchonete</h1>
+            </div>
 
-        <a class="voltar" href="/manager">Voltar</a>
-    </header>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Início</span>
+                </a>
 
-    <main>
+                <a href="/balcao" class="nav-item">
+                    <span class="nav-item-icon">💳</span>
+                    <span>Balcão</span>
+                </a>
+
+                <a href="/cozinha" class="nav-item">
+                    <span class="nav-item-icon">👨‍🍳</span>
+                    <span>Cozinha</span>
+                </a>
+
+                <a href="/painel" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Painel</span>
+                </a>
+
+                <div class="nav-section-title">Gerenciamento</div>
+
+                <a href="/manager" class="nav-item">
+                    <span class="nav-item-icon">⚙️</span>
+                    <span>Manager</span>
+                </a>
+
+                <a href="/manager/configuracoes" class="nav-item">
+                    <span class="nav-item-icon">🎨</span>
+                    <span>Configurações</span>
+                </a>
+
+                <a href="/manager/cardapio" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Cardápio</span>
+                </a>
+            </nav>
+        </aside>
+
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div>
+                    <h2 class="top-bar-title">Gerenciar Cardápio</h2>
+                    <p class="top-bar-subtitle">Cadastre categorias e produtos do sistema.</p>
+                </div>
+                <div class="top-bar-actions">
+                    <a class="btn btn-primary" href="/manager">Manager</a>
+                </div>
+            </header>
+
+            <div class="content-area cardapio-content">
         <section class="grid-principal">
             <article class="card">
                 <h2>Categorias</h2>
@@ -871,7 +920,8 @@
         carregarCategorias();
         carregarProdutos();
     </script>
-    <script src="theme-loader.js"></script>
+    <script src="/theme-loader.js"></script>
+    <script src="/layout-shell.js"></script>
 </body>
 
 </html>

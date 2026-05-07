@@ -11,7 +11,7 @@
     rel="stylesheet">
 
   <!-- CSS Base -->
-  <link rel="stylesheet" href="layout-base.css">
+  <link rel="stylesheet" href="/layout-base.css">
 
   <style>
     .painel-layout {
@@ -98,9 +98,9 @@
     <link rel="stylesheet" href="/theme.css">
 </head>
 
-<body>
+<body class="painel-shell-full-hide">
   <!-- LAYOUT COM SIDEBAR RECOLHIDA (Aparece com hover) -->
-  <div class="app-layout sidebar-collapsed">
+  <div class="app-layout sidebar-full-hide">
     <!-- SIDEBAR (recolhida por padrão, expande no hover) -->
     <aside class="sidebar">
       <div class="brand">
@@ -176,7 +176,8 @@
 
   <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="theme-loader.js"></script>
+  <script src="/theme-loader.js"></script>
+    <script src="/layout-shell.js"></script>
 
   <script>
     const socket = io();
