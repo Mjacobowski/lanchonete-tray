@@ -3,18 +3,20 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cardápio</title>
+    <link rel="stylesheet" href="layout-base.css">
 
     <style>
         :root {
-            --cor-primaria: #e11d48;
-            --cor-secundaria: #0f172a;
-            --cor-destaque: #f59e0b;
-            --fundo: #f3f4f6;
+            --cor-primaria: #d62300;
+            --cor-secundaria: #2b1a10;
+            --cor-destaque: #ffb703;
+            --fundo: #f5ebe0;
             --card: #ffffff;
-            --texto: #111827;
-            --muted: #64748b;
-            --borda: #e5e7eb;
+            --texto: #432818;
+            --muted: #857366;
+            --borda: #ead7c6;
         }
 
         * {
@@ -23,7 +25,7 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: var(--font-principal);
             background: var(--fundo);
             color: var(--texto);
         }
@@ -52,7 +54,7 @@
             text-decoration: none;
             border: 1px solid rgba(255, 255, 255, 0.35);
             padding: 10px 14px;
-            border-radius: 10px;
+            border-radius: 14px;
             font-weight: bold;
         }
 
@@ -71,9 +73,9 @@
 
         .card {
             background: var(--card);
-            border-radius: 18px;
+            border-radius: var(--radius-card);
             padding: 24px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--sombra);
             border: 1px solid var(--borda);
         }
 
@@ -104,9 +106,9 @@
             width: 100%;
             padding: 12px;
             border: 1px solid #d1d5db;
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 15px;
-            font-family: Arial, sans-serif;
+            font-family: var(--font-principal);
             background: white;
         }
 
@@ -143,7 +145,7 @@
             background: var(--cor-primaria);
             color: white;
             border: 0;
-            border-radius: 12px;
+            border-radius: var(--radius-control);
             padding: 12px 16px;
             font-weight: bold;
             font-size: 15px;
@@ -190,7 +192,7 @@
             justify-content: space-between;
             gap: 14px;
             align-items: center;
-            background: #ffffff;
+            background: var(--card);
         }
 
         .item-lista strong {
@@ -308,12 +310,13 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/theme.css">
 </head>
 
 <body>
     <header>
         <div>
-            <h1>Cardápio</h1>
+            <h1>Gerenciar Cardápio</h1>
             <p>Cadastre categorias e produtos do sistema.</p>
         </div>
 
@@ -868,6 +871,7 @@
         carregarCategorias();
         carregarProdutos();
     </script>
+    <script src="theme-loader.js"></script>
 </body>
 
 </html>

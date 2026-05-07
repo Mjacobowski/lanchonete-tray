@@ -1,6 +1,8 @@
 /**
- * Theme Loader - Carrega configurações de cores da empresa
- * e aplica dinamicamente no CSS
+ * Theme Loader - carrega dados/cores da loja e aplica no CSS.
+ *
+ * A identidade visual base fica no layout-base.css. Aqui só trocamos
+ * as variáveis de cor para respeitar a customização do cliente.
  */
 
 class ThemeLoader {
@@ -9,78 +11,89 @@ class ThemeLoader {
         this.loadTheme();
     }
 
-    /**
-     * Carrega as configurações do servidor
-     */
     async loadTheme() {
         try {
             const response = await fetch('/api/configuracoes');
             if (!response.ok) throw new Error('Falha ao carregar configurações');
-            
+
             this.configuracoes = await response.json();
             this.applyTheme();
+            this.applyStoreData();
         } catch (error) {
             console.warn('Usando tema padrão:', error.message);
             this.applyDefaultTheme();
         }
     }
 
-    /**
-     * Aplica o tema baseado nas configurações carregadas
-     */
-    applyTheme() {
-        const config = this.configuracoes;
-        const root = document.documentElement;
+    setVar(nome, valor) {
+        if (valor) {
+            document.documentElement.style.setProperty(nome, valor);
+        }
+    }
 
-        // Cores do tema
-        const tema = config.tema || {};
-        
-        if (tema.corPrimaria) {
-            root.style.setProperty('--cor-primaria', tema.corPrimaria);
-        }
-        
-        if (tema.corSecundaria) {
-            root.style.setProperty('--cor-secundaria', tema.corSecundaria);
-        }
-        
-        if (tema.corDestaque) {
-            root.style.setProperty('--cor-destaque', tema.corDestaque);
-        }
+    applyTheme() {
+        const tema = this.configuracoes?.tema || {};
+
+        const primaria = tema.corPrimaria || '#d62300';
+        const secundaria = tema.corSecundaria || '#2b1a10';
+        const destaque = tema.corDestaque || '#ffb703';
+
+        this.setVar('--cor-primaria', primaria);
+        this.setVar('--cor-secundaria', secundaria);
+        this.setVar('--cor-destaque', destaque);
+
+        // Aliases usados pelo padrão visual Saga/BK.
+        this.setVar('--vermelho-bk', primaria);
+        this.setVar('--marrom-dark', secundaria);
+        this.setVar('--amarelo-bk', destaque);
 
         console.log('✓ Tema aplicado com sucesso');
     }
 
-    /**
-     * Aplica tema padrão (fallback)
-     */
     applyDefaultTheme() {
-        const root = document.documentElement;
-        
-        root.style.setProperty('--cor-primaria', '#e11d48');
-        root.style.setProperty('--cor-secundaria', '#0f172a');
-        root.style.setProperty('--cor-destaque', '#f59e0b');
-        root.style.setProperty('--fundo', '#f3f4f6');
-        root.style.setProperty('--card', '#ffffff');
-        root.style.setProperty('--texto', '#111827');
-    }
-
-    /**
-     * Atualiza tema em tempo real (útil para manager)
-     */
-    updateTheme(novasConfiguracoes) {
-        this.configuracoes = { ...this.configuracoes, ...novasConfiguracoes };
+        this.configuracoes = {
+            loja: {},
+            tema: {
+                corPrimaria: '#d62300',
+                corSecundaria: '#2b1a10',
+                corDestaque: '#ffb703'
+            }
+        };
         this.applyTheme();
     }
 
-    /**
-     * Obtém configurações atuais
-     */
+    applyStoreData() {
+        const loja = this.configuracoes?.loja || {};
+        const nome = loja.nomeFantasia || 'Lanchonete';
+        const logoUrl = loja.logoUrl || '';
+
+        document.querySelectorAll('[data-store-name]').forEach((el) => {
+            el.textContent = nome;
+        });
+
+        if (document.title.includes('Lanchonete') && nome) {
+            document.title = document.title.replace('Lanchonete', nome);
+        }
+
+        document.querySelectorAll('[data-store-logo]').forEach((img) => {
+            if (logoUrl) {
+                img.src = logoUrl;
+                img.style.display = '';
+            }
+        });
+    }
+
+    updateTheme(novasConfiguracoes) {
+        this.configuracoes = { ...this.configuracoes, ...novasConfiguracoes };
+        this.applyTheme();
+        this.applyStoreData();
+    }
+
     getTheme() {
         return this.configuracoes;
     }
 }
 
-// Instancia e carrega o tema quando o DOM está pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.themeLoader = new ThemeLoader();

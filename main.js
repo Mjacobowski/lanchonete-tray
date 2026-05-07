@@ -75,6 +75,29 @@ function sendPublicFile(res, arquivo) {
     res.sendFile(arquivo, { root: path.resolve(__dirname, "public") });
 }
 
+function normalizarCorCss(valor, fallback) {
+    const cor = String(valor || "").trim();
+    return /^#[0-9a-fA-F]{6}$/.test(cor) ? cor : fallback;
+}
+
+function cssTemaAtual() {
+    const configuracoes = obterConfiguracoes();
+    const tema = configuracoes.tema || {};
+
+    const primaria = normalizarCorCss(tema.corPrimaria, "#d62300");
+    const secundaria = normalizarCorCss(tema.corSecundaria, "#2b1a10");
+    const destaque = normalizarCorCss(tema.corDestaque, "#ffb703");
+
+    return `:root {
+  --cor-primaria: ${primaria};
+  --cor-secundaria: ${secundaria};
+  --cor-destaque: ${destaque};
+  --vermelho-bk: ${primaria};
+  --marrom-dark: ${secundaria};
+  --amarelo-bk: ${destaque};
+}\n`;
+}
+
 function startLocalServer() {
     const web = express();
 
@@ -83,6 +106,12 @@ function startLocalServer() {
 
     const httpServer = http.createServer(web);
     const io = new Server(httpServer);
+
+    web.get("/theme.css", (req, res) => {
+        res.type("text/css");
+        res.set("Cache-Control", "no-store");
+        res.send(cssTemaAtual());
+    });
 
     function broadcastCatalogo() {
         try {

@@ -34,14 +34,22 @@
         .btn-totem i { font-size: 2.5rem; margin-bottom: 10px; }
 
         /* Cores Estilo BK */
-        .btn-balcao { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
-        .btn-cozinha { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
-        .btn-painel { background: #d62300; color: white; box-shadow: 0 10px 0px #8b1700; }
-        .btn-manager { background: #2b1a10; color: #ffb703; box-shadow: 0 10px 0px #1a0f0a; }
+        .btn-balcao { background: var(--cor-primaria); color: white; box-shadow: 0 10px 0px color-mix(in srgb, var(--cor-primaria) 62%, black); }
+        .btn-cozinha { background: var(--cor-primaria); color: white; box-shadow: 0 10px 0px color-mix(in srgb, var(--cor-primaria) 62%, black); }
+        .btn-painel { background: var(--cor-primaria); color: white; box-shadow: 0 10px 0px color-mix(in srgb, var(--cor-primaria) 62%, black); }
+        .btn-manager {
+            background: var(--cor-primaria);
+            color: white;
+            box-shadow: 0 10px 0px color-mix(in srgb, var(--cor-primaria) 62%, black);
+        }
 
         .btn-totem:active {
             transform: translateY(6px);
             box-shadow: 0 4px 0px #000;
+        }
+
+        .content-area .card {
+            padding-left: 32px;
         }
 
         .status-badge {
@@ -54,33 +62,34 @@
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
     </style>
+    <link rel="stylesheet" href="/theme.css">
 </head>
 <body>
     <div class="app-layout">
         <main class="main-content">
             <header class="top-bar">
-                <h2 class="top-bar-title">Sistema de Lanchonete</h2>
-                <div id="relogio" style="font-family: 'Lilita One'; color: #d62300; font-size: 1.5rem;">10:53</div>
+                <h2 class="top-bar-title">Sistema de <span data-store-name>Lanchonete</span></h2>
+                <div id="relogio" style="font-family: 'Lilita One'; color: var(--cor-primaria); font-size: 1.5rem;">00:00</div>
             </header>
 
             <div class="content-area">
-                <h1 style="font-family: 'Lilita One'; color: #d62300; font-size: 2.5rem;">Bem-vindo ao Sistema</h1>
+                <h1 style="font-family: 'Lilita One'; color: var(--cor-primaria); font-size: 2.5rem;">Bem-vindo ao <span data-store-name>Sistema</span></h1>
                 
                 <div class="grid-4 mt-4">
                     <div class="card">
-                        <p style="font-weight: 600; color: #432818;">Pedidos Hoje</p>
+                        <p style="font-weight: 600; color: var(--texto);">Pedidos Hoje</p>
                         <h2 style="font-size: 3rem; margin: 0;">0</h2>
                     </div>
                     <div class="card">
-                        <p style="font-weight: 600; color: #432818;">Em Preparação</p>
-                        <h2 style="font-size: 3rem; margin: 0; color: #d62300;">0</h2>
+                        <p style="font-weight: 600; color: var(--texto);">Em Preparação</p>
+                        <h2 style="font-size: 3rem; margin: 0; color: var(--cor-primaria);">0</h2>
                     </div>
                     <div class="card">
-                        <p style="font-weight: 600; color: #432818;">Mesas Ocupadas</p>
+                        <p style="font-weight: 600; color: var(--texto);">Mesas Ocupadas</p>
                         <h2 style="font-size: 3rem; margin: 0;">0</h2>
                     </div>
                     <div class="card">
-                        <p style="font-weight: 600; color: #432818;">Status</p>
+                        <p style="font-weight: 600; color: var(--texto);">Status</p>
                         <div style="display: flex; align-items: center; margin-top: 15px;">
                             <span class="status-badge"></span>
                             <span style="font-weight: bold;">Online</span>
@@ -88,7 +97,7 @@
                     </div>
                 </div>
 
-                <h2 class="mt-5" style="font-family: 'Lilita One'; color: #432818;">Acesso Rápido</h2>
+                <h2 class="mt-5" style="font-family: 'Lilita One'; color: var(--texto);">Acesso Rápido</h2>
                 <div class="grid-acesso">
                     <a href="balcao.html" class="btn-totem btn-balcao">🛒 Balcão</a>
                     <a href="cozinha.html" class="btn-totem btn-cozinha">👨‍🍳 Cozinha</a>
@@ -97,7 +106,7 @@
                 </div>
 
                 <div class="card mt-5">
-                    <h3 style="border-bottom: 2px dashed #e2d1c3; padding-bottom: 10px;">Informações do Sistema</h3>
+                    <h3 style="border-bottom: 2px dashed var(--borda); padding-bottom: 10px;">Informações do Sistema</h3>
                     <ul style="list-style: none; padding: 0; margin-top: 15px; font-weight: 500;">
                         <li style="margin-bottom: 8px;">✅ Estilo BK Padronizado (Off-White & Marrom)</li>
                         <li style="margin-bottom: 8px;">✅ Banco de dados conectado via WebSocket</li>
@@ -107,5 +116,21 @@
             </div>
         </main>
     </div>
+    <script src="theme-loader.js"></script>
+    <script>
+        function atualizarRelogio() {
+            const relogio = document.getElementById('relogio');
+            if (!relogio) return;
+
+            const agora = new Date();
+            relogio.textContent = agora.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        atualizarRelogio();
+        setInterval(atualizarRelogio, 1000);
+    </script>
 </body>
 </html>
