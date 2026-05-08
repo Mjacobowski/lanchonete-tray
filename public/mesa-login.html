@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Entrar na Mesa</title>
+  <link rel="stylesheet" href="/layout-base.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; height:100vh; }
+    .card { width:360px; padding:24px; box-shadow:0 6px 30px rgba(0,0,0,0.12); border-radius:8px; background:#fff }
+    .field { margin-bottom:12px }
+    label { display:block; font-weight:600; margin-bottom:6px }
+    input[type=text], input[type=password] { width:100%; padding:10px; font-size:16px }
+    button { width:100%; padding:10px; font-size:16px; background:var(--cor-primaria); color:#fff; border:none; border-radius:6px }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Entrar na mesa</h2>
+
+    <div class="field">
+      <label for="table">ID da mesa</label>
+      <input id="table" type="text" placeholder="Ex: 1" />
+    </div>
+
+    <div class="field">
+      <label for="password">Senha do restaurante</label>
+      <input id="password" type="password" placeholder="Senha" />
+    </div>
+
+    <div class="field">
+      <label><input id="remember" type="checkbox"> Lembrar este dispositivo</label>
+    </div>
+
+    <div class="field">
+      <button id="entrar">Entrar</button>
+    </div>
+
+    <div id="mensagem" style="color:#b91c1c"></div>
+  </div>
+
+  <script>
+    // Se houver uma sessão guardada, redireciona
+    const lastPublic = localStorage.getItem('mesa.publicId');
+    if (lastPublic) {
+      location.href = '/mesa/' + lastPublic;
+    }
+
+    function uuidv4() {
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (
+        c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4
+      ).toString(16));
+    }
+
+    document.getElementById('entrar').addEventListener('click', async () => {
+      const table = document.getElementById('table').value.trim();
+      const password = document.getElementById('password').value || '';
+      const remember = document.getElementById('remember').checked;
+
+      const deviceId = localStorage.getItem('mesa.deviceId') || uuidv4();
+
+      try {
+        const resp = await fetch('/api/mesa/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table_number: table, password: password, device_id: deviceId, remember })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          document.getElementById('mensagem').textContent = data.mensagem || 'Erro';
+          return;
+        }
+
+        if (remember) {
+          localStorage.setItem('mesa.deviceId', deviceId);
+          localStorage.setItem('mesa.publicId', data.publicId);
+        } else {
+          // guarda apenas durante a sessão
+          sessionStorage.setItem('mesa.publicId', data.publicId);
+        }
+
+        // Redireciona para a tela da mesa
+        location.href = '/mesa/' + data.publicId;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('mensagem').textContent = 'Erro de rede. Tente novamente.';
+      }
+    });
+  </script>
+</body>
+</html>
+
