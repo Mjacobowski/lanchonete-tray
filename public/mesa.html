@@ -1254,15 +1254,22 @@
                     } catch(_){}
                 }
             } catch(e) { console.error('sidebar toggle bind failed', e); }
-            // flip toggle
+            // flip toggle (disabled by default on load)
             try {
+                // ensure any flip is removed on load
+                const appEl = document.querySelector('.app-container');
+                if (appEl && appEl.classList.contains('site-flip')) appEl.classList.remove('site-flip');
+
+                // hide flip button (was a prank) to avoid re-trigger
+                const flipBtn = document.getElementById('btnFlip');
+                if (flipBtn) flipBtn.style.display = 'none';
+
+                // still keep helpers for debug but no UI button
                 window.toggleFlip = function() {
                     const app = document.querySelector('.app-container');
                     if (!app) return;
                     app.classList.toggle('site-flip');
                 };
-
-                // expose for console
                 window.flipSite = function() { document.querySelector('.app-container')?.classList.toggle('site-flip'); };
             } catch(e) { console.error('flip bind failed', e); }
         });
