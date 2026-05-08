@@ -250,7 +250,7 @@
 
         .produto-imagem {
             width: 100%;
-            height: 120px;
+            height: 100px;
             background: var(--fundo);
             border-radius: 10px;
             margin-bottom: 10px;
@@ -262,8 +262,8 @@
 
         .produto-imagem-img {
             width: 100%;
-            height: 120px;
-            object-fit: cover;
+            height: 100px;
+            object-fit: contain;
             border-radius: 10px;
             margin-bottom: 10px;
             background: var(--fundo);
@@ -328,7 +328,7 @@
         /* CARRINHO RODAPÉ */
         .carrinho-rodape {
             background: white;
-            border-top: 2px solid var(--borda);
+            border-top: 0; /* remove unnecessary top border */
             grid-column: 1 / -1;
             padding: 12px 20px;
             display: flex;
@@ -569,10 +569,12 @@
 
             .app-container {
                 grid-template-columns: var(--sidebar-width) 1fr;
+                grid-template-rows: 64px 1fr 72px;
             }
 
             .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
             }
         }
 
@@ -745,8 +747,27 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
     <script src="theme-loader.js"></script>
+    <script>
+        // client-side global error reporter — sends errors to server for debugging
+        window.addEventListener('error', function (e) {
+            try {
+                fetch('/api/client-error', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: e.message, filename: e.filename, lineno: e.lineno, colno: e.colno, stack: (e.error && e.error.stack) || null, userAgent: navigator.userAgent })
+                }).catch(()=>{});
+            } catch(_){}
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            try {
+                fetch('/api/client-error', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'UnhandledRejection', reason: (e.reason && e.reason.stack) || e.reason, userAgent: navigator.userAgent })
+                }).catch(()=>{});
+            } catch(_){}
+        });
+    </script>
     <script>
         let categorias = [];
         let produtos = [];
@@ -1063,31 +1084,75 @@
             const idleEl = document.getElementById('idleHome');
             const carousel = document.getElementById('idleCarousel');
             if (!idleEl || !carousel) return;
-            // populate slides
+            // clear previous
             carousel.innerHTML = '';
-            // priority: configured carousel images -> loja.logoUrl -> fallback saga image
             const clientLogo = (document.getElementById('logo') && document.getElementById('logo').src) ? document.getElementById('logo').src : null;
-            const images = (window.carouselImages && window.carouselImages.length)
-                ? window.carouselImages
-                : (clientLogo ? [clientLogo] : ['/img/saga-system.png']);
-            images.forEach((src, i) => {
+
+            function renderLogoOnly(src) {
+                carousel.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Logo';
+                img.style.maxHeight = '35vh';
+                img.style.height = 'auto';
+                img.style.width = 'auto';
+                img.style.maxWidth = '90%';
+                img.style.objectFit = 'contain';
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
+                const wrapper = document.createElement('div');
+                wrapper.style.width = '100%';
+                wrapper.style.height = '100%';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.justifyContent = 'center';
+                wrapper.style.opacity = '0';
+                wrapper.style.transition = 'opacity 0.8s ease';
+                wrapper.appendChild(img);
+                carousel.appendChild(wrapper);
+                // force reflow then trigger fade-in (more reliable than RAF+timeout)
+                void wrapper.getBoundingClientRect();
+                wrapper.style.opacity = '1';
+            }
+
+            // priority: carouselImages -> client logo -> saga logo -> saga full image
+            if (window.carouselImages && window.carouselImages.length) {
+                const logoCandidate = window.carouselImages.find(u => /logo/i.test(u));
+                if (logoCandidate) { renderLogoOnly(logoCandidate); idleEl.style.display = 'flex'; return; }
+                window.carouselImages.forEach((src, i) => {
+                    const slide = document.createElement('div');
+                    slide.style.position = 'absolute';
+                    slide.style.inset = '0';
+                    slide.style.background = `center / cover no-repeat url('${src}')`;
+                    slide.style.opacity = i === 0 ? '1' : '0';
+                    slide.style.transition = 'opacity 0.6s ease';
+                    carousel.appendChild(slide);
+                });
+                idleEl.style.display = 'flex';
+                let idx = 0;
+                idleInterval = setInterval(() => {
+                    const slides = Array.from(carousel.children);
+                    slides.forEach((s, j) => s.style.opacity = j === idx ? '1' : '0');
+                    idx = (idx + 1) % Math.max(1, slides.length);
+                }, SLIDE_INTERVAL);
+                return;
+            }
+
+            if (clientLogo) { renderLogoOnly(clientLogo); idleEl.style.display = 'flex'; return; }
+
+            // try saga-system_logo.png
+            const tryLogo = new Image();
+            tryLogo.onload = () => { renderLogoOnly('/img/saga-system_logo.png'); idleEl.style.display = 'flex'; };
+            tryLogo.onerror = () => {
                 const slide = document.createElement('div');
                 slide.style.position = 'absolute';
                 slide.style.inset = '0';
-                slide.style.background = `center / cover no-repeat url('${src}')`;
-                slide.style.opacity = i === 0 ? '1' : '0';
-                slide.style.transition = 'opacity 0.6s ease';
+                slide.style.background = `center / cover no-repeat url('/img/saga-system.png')`;
+                slide.style.opacity = '1';
                 carousel.appendChild(slide);
-            });
-
-            idleEl.style.display = 'flex';
-            // start auto slide
-            let idx = 0;
-            idleInterval = setInterval(() => {
-                const slides = Array.from(carousel.children);
-                slides.forEach((s, j) => s.style.opacity = j === idx ? '1' : '0');
-                idx = (idx + 1) % slides.length;
-            }, SLIDE_INTERVAL);
+                idleEl.style.display = 'flex';
+            };
+            tryLogo.src = '/img/saga-system_logo.png';
         }
 
         function hideIdleHome() {
