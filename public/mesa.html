@@ -86,6 +86,19 @@
             gap: 12px;
         }
 
+        /* hamburger for small screens */
+        .btn-hamburger {
+            display: none;
+            background: transparent;
+            border: 0;
+            color: white;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
         .btn-sino {
             background: var(--cor-primaria);
             color: white;
@@ -227,8 +240,11 @@
 
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            /* responsive columns: try to fit as many items as possible,
+               each item at least 160px but will shrink to fill available space */
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 14px;
+            align-items: start;
             flex: 1;
         }
 
@@ -565,21 +581,28 @@
         .btn-fechar-conta { background: var(--cor-primaria); color: white; border:0; }
 
         @media (max-width: 1024px) {
-            :root { --sidebar-width: 220px; }
+            :root { --sidebar-width: 200px; }
 
             .app-container {
                 grid-template-columns: var(--sidebar-width) 1fr;
                 grid-template-rows: 64px 1fr 72px;
             }
 
+            /* on tablet / small screens: use two columns where possible */
             .produtos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
                 gap: 10px;
             }
+
+            /* show hamburger and allow sidebar toggling */
+            .btn-hamburger { display: inline-flex; margin-right: 8px; }
+            .sidebar { transition: transform 0.25s ease; }
+            .sidebar.sidebar-hidden { transform: translateX(-100%); }
+            .app-container.sidebar-hidden { grid-template-columns: 0 1fr; }
         }
 
         @media (max-width: 640px) {
-            :root { --sidebar-width: 180px; }
+            :root { --sidebar-width: 160px; }
 
             .app-container {
                 grid-template-columns: var(--sidebar-width) 1fr;
@@ -588,8 +611,12 @@
             .header-left { min-width: 0; }
             .titulo-loja { font-size: 16px; }
             .btn-carrinho-header { padding: 8px 12px; font-size: 12px; }
-            .produtos-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            .produto { padding: 10px; }
+            /* on narrow phones: 2 columns of ~45% width to avoid overflow */
+            .produtos-grid { grid-template-columns: repeat(2, 45%); gap:10px; }
+            .produto { padding: 8px; }
+            .btn-hamburger { display:inline-flex; }
+            .sidebar { position: absolute; z-index: 2000; left:0; top:80px; bottom:100px; width:var(--sidebar-width); background:var(--card); box-shadow: 4px 0 16px rgba(0,0,0,0.08); }
+            .sidebar.sidebar-hidden { transform: translateX(-110%); }
         }
     </style>
     <link rel="stylesheet" href="/theme.css">
@@ -600,6 +627,7 @@
         <!-- HEADER -->
         <header>
             <div class="header-left">
+                <button id="btnToggleSidebar" class="btn-hamburger" aria-label="Abrir menu">☰</button>
                 <img id="logo" class="logo" alt="Logo da loja" />
                 <div>
                     <h1 id="nomeLoja" class="titulo-loja">Lanchonete</h1>
@@ -1187,6 +1215,29 @@
                     });
                 }
             } catch (e) { console.error('bind idle test failed', e); }
+            // sidebar hamburger behavior
+            try {
+                const btn = document.getElementById('btnToggleSidebar');
+                const sidebar = document.querySelector('.sidebar');
+                const app = document.querySelector('.app-container');
+                if (btn && sidebar && app) {
+                    // initialize collapsed on small screens
+                    if (window.innerWidth <= 1024) {
+                        sidebar.classList.add('sidebar-hidden');
+                        app.classList.add('sidebar-hidden');
+                    }
+                    btn.addEventListener('click', () => {
+                        const hidden = sidebar.classList.toggle('sidebar-hidden');
+                        if (hidden) app.classList.add('sidebar-hidden'); else app.classList.remove('sidebar-hidden');
+                        try { localStorage.setItem('sidebarHidden', hidden ? '1' : '0'); } catch(_) {}
+                    });
+                    // restore preference
+                    try {
+                        const pref = localStorage.getItem('sidebarHidden');
+                        if (pref === '1') { sidebar.classList.add('sidebar-hidden'); app.classList.add('sidebar-hidden'); }
+                    } catch(_){}
+                }
+            } catch(e) { console.error('sidebar toggle bind failed', e); }
         });
 
         async function cancelarFecharConta() {
