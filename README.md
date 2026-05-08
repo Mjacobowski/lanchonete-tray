@@ -158,6 +158,14 @@ Exemplo atual do seed:
 | --- | --- | --- |
 | `GET` | `/api/configuracoes` | Lista configurações |
 | `POST` | `/api/configuracoes` | Salva configurações |
+| `GET` | `/health` | Healthcheck simples (200 JSON) |
+| `POST` | `/api/mesa/login` | Cria sessão de mesa (body: {table_number, password, device_id?, remember}) |
+| `GET` | `/api/mesa/:numero` | Retorna info simples da mesa (aceita publicId como "1-abc") |
+| `GET` | `/api/mesa/:publicId/ficha` | Retorna pedidos da sessão e total parcial |
+| `POST` | `/api/mesa/:publicId/call-waiter` | Solicita chamar garçom (emite socket) |
+| `POST` | `/api/mesa/:publicId/request-close` | Solicita fechamento da conta (emite socket) |
+| `POST` | `/api/mesa/:publicId/cancel-close` | Cancela solicitação de fechamento (emite socket) |
+| `POST` | `/api/mesa/validate-password` | Valida senha padrão da loja (body: {password}) |
 | `GET` | `/api/cnpj/:cnpj` | Consulta CNPJ |
 | `GET` | `/api/categorias` | Lista categorias |
 | `POST` | `/api/categorias` | Cria/atualiza categoria |
