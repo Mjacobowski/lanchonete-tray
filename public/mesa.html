@@ -614,6 +614,8 @@
                     🧾 Resumo
                 </button>
                 <button id="btnSino" type="button" title="Ações da mesa" class="btn-sino" onclick="abrirMesaActions()">🔔</button>
+                <!-- Botão temporário para testar idle mode -->
+                <button id="btnIdleTest" type="button" title="Testar idle" class="btn-sino" style="background:#111;border:1px solid rgba(255,255,255,0.08);" onclick="showIdleHome()">Idle</button>
             </div>
         </header>
 
@@ -680,12 +682,12 @@
                 <h2>Fechar conta</h2>
                 <button class="modal-close" onclick="fecharFecharConta()">✕</button>
             </div>
-
-            <p>Deseja pedir ao balcão para finalizar a conta desta mesa?</p>
+            <p>Escolha a forma de pagamento:</p>
 
             <div style="display:flex;gap:8px;margin-top:12px;">
-                <button class="btn-modal-enviar" onclick="confirmarFecharConta()">Pedir fechamento</button>
-                <button class="btn-modal-fechar" onclick="fecharFecharConta()">Cancelar</button>
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('pix')">PIX</button>
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('card')">Cartão</button>
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('cash')">Dinheiro</button>
             </div>
 
             <div id="fecharContaMsg" style="margin-top:12px;display:none;color:#065f46;font-weight:700"></div>
@@ -707,6 +709,16 @@
                 <button class="btn-fechar-conta btn-finalizar" onclick="abrirFecharConta()">Fechar Conta</button>
             </div>
         </div>
+    </div>
+
+    <!-- IDLE HOME / CARROSSEL -->
+    <div id="idleHome" style="display:none;position:fixed;inset:0;z-index:120000;background:#000;align-items:center;justify-content:center;"> 
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <div id="idleCarousel" style="width:100%;height:100%;position:relative;">
+                <!-- slides inserted dynamically -->
+            </div>
+        </div>
+        <button id="idleClose" style="position:absolute;right:18px;top:18px;background:rgba(255,255,255,0.08);border:0;color:#fff;padding:10px;border-radius:8px;cursor:pointer;">Voltar</button>
     </div>
 
     <!-- MODAL DO CARRINHO -->
@@ -773,6 +785,9 @@
                 document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
 
                 document.getElementById("nomeLoja").innerText = config.loja.nomeFantasia || "Lanchonete";
+
+                // carousel images (idle home)
+                window.carouselImages = (config.loja && config.loja.carousel && Array.isArray(config.loja.carousel)) ? config.loja.carousel : [];
 
                 const logo = config.loja.logoUrl;
                 const logoEl = document.getElementById("logo");
@@ -1028,6 +1043,87 @@
             }
         }
 
+        // Idle / carousel implementation
+        let idleTimer = null;
+        let idleInterval = null;
+        const IDLE_TIMEOUT = 20000; // 20 seconds
+        const SLIDE_INTERVAL = 5000; // 5 seconds
+
+        function resetIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+            // if idle home is visible, hide it on activity
+            const idleEl = document.getElementById('idleHome');
+            if (idleEl && idleEl.style.display !== 'none') {
+                hideIdleHome();
+            }
+            idleTimer = setTimeout(() => showIdleHome(), IDLE_TIMEOUT);
+        }
+
+        function showIdleHome() {
+            const idleEl = document.getElementById('idleHome');
+            const carousel = document.getElementById('idleCarousel');
+            if (!idleEl || !carousel) return;
+            // populate slides
+            carousel.innerHTML = '';
+            // priority: configured carousel images -> loja.logoUrl -> fallback saga image
+            const clientLogo = (document.getElementById('logo') && document.getElementById('logo').src) ? document.getElementById('logo').src : null;
+            const images = (window.carouselImages && window.carouselImages.length)
+                ? window.carouselImages
+                : (clientLogo ? [clientLogo] : ['/img/saga-system.png']);
+            images.forEach((src, i) => {
+                const slide = document.createElement('div');
+                slide.style.position = 'absolute';
+                slide.style.inset = '0';
+                slide.style.background = `center / cover no-repeat url('${src}')`;
+                slide.style.opacity = i === 0 ? '1' : '0';
+                slide.style.transition = 'opacity 0.6s ease';
+                carousel.appendChild(slide);
+            });
+
+            idleEl.style.display = 'flex';
+            // start auto slide
+            let idx = 0;
+            idleInterval = setInterval(() => {
+                const slides = Array.from(carousel.children);
+                slides.forEach((s, j) => s.style.opacity = j === idx ? '1' : '0');
+                idx = (idx + 1) % slides.length;
+            }, SLIDE_INTERVAL);
+        }
+
+        function hideIdleHome() {
+            const idleEl = document.getElementById('idleHome');
+            const carousel = document.getElementById('idleCarousel');
+            if (!idleEl) return;
+            idleEl.style.display = 'none';
+            if (idleInterval) { clearInterval(idleInterval); idleInterval = null; }
+            if (carousel) carousel.innerHTML = '';
+            // restart idle timer
+            resetIdleTimer();
+        }
+
+        // attach activity listeners
+        ['mousemove','mousedown','touchstart','keydown','click'].forEach(ev => {
+            window.addEventListener(ev, resetIdleTimer, { passive: true });
+        });
+
+        // idle close button
+        document.addEventListener('DOMContentLoaded', () => {
+            const idleClose = document.getElementById('idleClose');
+            if (idleClose) idleClose.addEventListener('click', hideIdleHome);
+            resetIdleTimer();
+            // expose and bind test button
+            try {
+                window.showIdleHome = showIdleHome;
+                const idleBtn = document.getElementById('btnIdleTest');
+                if (idleBtn) {
+                    idleBtn.addEventListener('click', () => {
+                        console.log('btnIdleTest clicked');
+                        showIdleHome();
+                    });
+                }
+            } catch (e) { console.error('bind idle test failed', e); }
+        });
+
         async function cancelarFecharConta() {
             const publicId = window.location.pathname.split('/')[2];
             try {
@@ -1171,6 +1267,82 @@
                 console.error(err);
                 let el = document.getElementById('fecharContaMsg') || document.getElementById('resumoFecharMsg');
                 if (el) { el.innerText = 'Erro de rede'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+            }
+        }
+
+        function selecionarPagamento(method) {
+            // ensure the choice modal is closed before proceeding
+            try { fecharFecharConta(); } catch(e) { console.error(e); }
+
+            // if PIX, open PIX modal with QR placeholder
+            if (method === 'pix') {
+                abrirPixModal();
+                return;
+            }
+
+            // for card or cash, send request-close with paymentMethod
+            confirmarFecharContaComMetodo(method);
+        }
+
+        async function confirmarFecharContaComMetodo(method) {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/request-close`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentMethod: method }) });
+                const data = await resp.json();
+                if (resp.ok) {
+                    setClosingRequested(true);
+                    const el = document.getElementById('fecharContaMsg');
+                    if (el) { el.innerText = data.mensagem || 'Solicitação enviada'; el.style.display = 'block'; }
+                    fecharFecharConta();
+                    setTimeout(() => fecharResumo(), 1200);
+                } else {
+                    const el = document.getElementById('fecharContaMsg');
+                    if (el) { el.innerText = data.mensagem || 'Erro'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function abrirPixModal() {
+            // show a simple pix modal inside the resumen modal area
+            const existing = document.getElementById('modalPix');
+            if (existing) { existing.classList.add('aberto','centered'); return; }
+
+            const div = document.createElement('div');
+            div.id = 'modalPix';
+            div.className = 'modal centered aberto';
+            div.innerHTML = `<div class="modal-card"><div class="modal-header"><h2>PIX</h2><button class="modal-close" onclick="fecharPixModal()">✕</button></div><div style="padding:12px;"><p>Chave PIX: <strong>00011122233@pix.ex</strong></p><div style="margin-top:12px;padding:12px;border:1px dashed #ddd;text-align:center;">[QRCODE PLACEHOLDER]</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button class="btn-modal-fechar" onclick="fecharPixModal()">Fechar</button><button class="btn-modal-enviar" style="margin-left:8px;" onclick="confirmarPagamentoTest()">Confirmar pagamento (teste)</button></div></div></div>`;
+            document.body.appendChild(div);
+        }
+
+        function fecharPixModal() {
+            const m = document.getElementById('modalPix');
+            if (m) {
+                m.remove();
+                // re-apply current closingRequested state to avoid UI desync
+                try { setClosingRequested(closingRequested); } catch (e) { console.error(e); }
+            }
+        }
+
+        // Test helper: confirma pagamento e finaliza sessão atual, criando nova sessão no servidor
+        async function confirmarPagamentoTest() {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/confirm-close`, { method: 'POST' });
+                const data = await resp.json();
+                if (resp.ok && data.newPublicId) {
+                    // update UI: reset closingRequested and redirect to new session
+                    setClosingRequested(false);
+                    fecharPixModal();
+                    // redirect to new publicId
+                    location.href = '/mesa/' + data.newPublicId;
+                } else {
+                    alert('Erro ao confirmar pagamento: ' + (data.mensagem || ''));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro de rede ao confirmar pagamento');
             }
         }
 

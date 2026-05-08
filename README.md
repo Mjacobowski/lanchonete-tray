@@ -312,7 +312,7 @@ Antes de usar em produção, este projeto precisa evoluir em alguns pontos:
 ## Créditos
 
 <p align="center">
-  <img src="public/img/saga-system.jpg" alt="SAGA System" width="220" />
+<img src="public/img/saga-system.png" alt="SAGA System" width="220" />
 </p>
 
 Desenvolvido por **SAGA System**.
