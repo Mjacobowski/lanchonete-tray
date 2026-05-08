@@ -193,7 +193,38 @@ function startLocalServer() {
     });
 
     web.get("/mesa/:numero", (req, res) => {
-        sendPublicFile(res, "mesa.html");
+        const raw = String(req.params.numero || "");
+
+        // If URL already includes publicId (ex: "1-abc123"), allow direct access only if session exists and is open
+        if (raw.includes('-')) {
+            try {
+                const row = db.prepare(`SELECT id FROM table_sessions WHERE public_id = ? AND status = 'open' LIMIT 1`).get(raw);
+                if (row && row.id) {
+                    return sendPublicFile(res, "mesa.html");
+                }
+            } catch (err) {
+                console.error('Erro ao verificar public_id da mesa:', err);
+            }
+            // invalid or closed publicId -> send to login
+            return res.redirect('/mesa');
+        }
+
+        // Otherwise check if there is an open session for this table number
+        try {
+            const row = db.prepare(`SELECT public_id FROM table_sessions WHERE table_number = ? AND status = 'open' ORDER BY opened_at DESC LIMIT 1`).get(raw);
+
+            if (row && row.public_id) {
+                // There is an open session for this table number.
+                // Do NOT redirect to the publicId when user manually types /mesa/:numero —
+                // instead force the login screen to avoid accidental session exposure.
+                return res.redirect('/mesa');
+            }
+        } catch (err) {
+            console.error('Erro ao verificar sessão da mesa:', err);
+        }
+
+        // No open session: force login screen
+        return res.redirect('/mesa');
     });
 
     // API da mesa
@@ -238,13 +269,14 @@ function startLocalServer() {
         try {
             const publicId = String(req.params.publicId || "");
             const sess = buscarSessaoPorPublicId(publicId);
+            const paymentMethod = (req.body && req.body.paymentMethod) ? String(req.body.paymentMethod) : null;
 
             if (!sess) {
                 return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
             }
 
             // Notifica via socket para o balcão
-            try { io.emit('mesa_pedir_fechamento', { publicId: sess.publicId, tableNumber: sess.tableNumber }); } catch(e) { console.error(e); }
+            try { io.emit('mesa_pedir_fechamento', { publicId: sess.publicId, tableNumber: sess.tableNumber, paymentMethod }); } catch(e) { console.error(e); }
 
             return res.json({ ok: true, mensagem: 'Solicitação de fechamento enviada ao balcão' });
         } catch (err) {
@@ -268,6 +300,36 @@ function startLocalServer() {
             return res.json({ ok: true, mensagem: 'Solicitação de fechamento cancelada' });
         } catch (err) {
             console.error('Erro em cancel-close:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Confirmação de pagamento / fechamento: fecha sessão atual e cria nova sessão com mesmo table_number
+    web.post('/api/mesa/:publicId/confirm-close', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || "");
+            const sess = buscarSessaoPorPublicId(publicId);
+
+            if (!sess) {
+                return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
+            }
+
+            // Fecha sessão atual
+            const closed = fecharSessaoPorPublicId(publicId);
+
+            // Cria nova sessão com mesmo table_number
+            const newSess = criarSessaoMesa({ tableNumber: sess.tableNumber, deviceId: null, restaurantId: sess.restaurantId });
+
+            // Notifica via socket
+            try {
+                io.emit('mesa_fechada_confirmada', { oldPublicId: publicId, newPublicId: newSess.publicId, tableNumber: sess.tableNumber });
+            } catch (e) {
+                console.error(e);
+            }
+
+            return res.json({ ok: true, mensagem: 'Conta fechada e nova sessão criada', newPublicId: newSess.publicId, closed });
+        } catch (err) {
+            console.error('Erro em confirm-close:', err);
             return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
         }
     });
