@@ -166,6 +166,41 @@ Exemplo atual do seed:
 | `POST` | `/api/mesa/:publicId/request-close` | Solicita fechamento da conta (emite socket) |
 | `POST` | `/api/mesa/:publicId/cancel-close` | Cancela solicitação de fechamento (emite socket) |
 | `POST` | `/api/mesa/validate-password` | Valida senha padrão da loja (body: {password}) |
+
+---
+
+## Atualizações recentes (2026-05-08)
+
+Resumo das principais mudanças entregues hoje:
+
+- Fluxo de sessão de mesa:
+  - Tela de login /mesa com ID da mesa + senha padrão.
+  - Sessões persistidas em table_sessions (public_id = "<numero>-<hash>").
+  - POST /api/mesa/login para abrir sessão e redirecionar para /mesa/{publicId}.
+
+- Operações da mesa e pagamentos:
+  - GET /api/mesa/:publicId/ficha -> resumo dos pedidos da sessão.
+  - POST /api/mesa/:publicId/call-waiter -> chama garçom (emite socket).
+  - POST /api/mesa/:publicId/request-close -> solicita fechamento (aceita paymentMethod).
+  - POST /api/mesa/:publicId/cancel-close -> cancela solicitação de fechamento.
+  - POST /api/mesa/:publicId/confirm-close -> confirma pagamento (fecha sessão e cria nova sessão automaticamente).
+  - Modal de pagamento na UI com opções PIX/Cartão/Dinheiro; fluxo de teste PIX implementado.
+
+- Experiência da mesa (UI):
+  - Botão "Resumo" (histórico da mesa) e sino de ações padronizados.
+  - Estado "fechamento solicitado" desabilita botões de adicionar (visual vermelho) e permite cancelar.
+  - Idle home/carrossel configurável; mostra imagens da loja, logo do cliente ou fallback saga-system_logo.png. Logo aparece centralizada com fade-in.
+
+- Infra / estabilidade:
+  - Health endpoint /health.
+  - Graceful shutdown no servidor Node.
+  - Processo gerenciado por PM2 (ecosystem.config.js) com systemd startup.
+  - Coleta de erros JS do cliente para /api/client-error (log em data/client-errors.log).
+
+Notas:
+- Seeds foram executadas e dados de exemplo permanecem no banco (categorias/produtos).
+- Senha padrão do restaurante atualmente é verificada como string (migrar para hash antes de produção).
+
 | `GET` | `/api/cnpj/:cnpj` | Consulta CNPJ |
 | `GET` | `/api/categorias` | Lista categorias |
 | `POST` | `/api/categorias` | Cria/atualiza categoria |
