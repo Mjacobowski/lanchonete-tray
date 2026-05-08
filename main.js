@@ -13,6 +13,10 @@ const {
     atualizarStatusPedido,
     obterConfiguracoes,
     salvarConfiguracoes,
+    db,
+    criarSessaoMesa,
+    buscarSessaoPorPublicId,
+    fecharSessaoPorPublicId,
 
     listarCategorias,
     salvarCategoria,
@@ -107,10 +111,25 @@ function startLocalServer() {
     const httpServer = http.createServer(web);
     const io = new Server(httpServer);
 
+    // Tune server timeouts to be proxy-friendly
+    // keepAliveTimeout should be lower than proxy's idle timeout
+    httpServer.keepAliveTimeout = 65000; // 65s
+    // headersTimeout must be > keepAliveTimeout
+    httpServer.headersTimeout = 70000; // 70s
+
+    httpServer.on('error', (err) => {
+        console.error('HTTP server error:', err);
+    });
+
     web.get("/theme.css", (req, res) => {
         res.type("text/css");
         res.set("Cache-Control", "no-store");
         res.send(cssTemaAtual());
+    });
+
+    // Healthcheck endpoint for proxy / load-balancer
+    web.get('/health', (req, res) => {
+        res.json({ ok: true, uptime: process.uptime() });
     });
 
     function broadcastCatalogo() {
@@ -168,18 +187,229 @@ function startLocalServer() {
         sendPublicFile(res, "mesa.html");
     });
 
+    // Tela de login para vincular dispositivo a uma mesa
+    web.get("/mesa", (req, res) => {
+        sendPublicFile(res, "mesa-login.html");
+    });
+
     web.get("/mesa/:numero", (req, res) => {
-        sendPublicFile(res, "mesa.html");
+        const raw = String(req.params.numero || "");
+
+        // If URL already includes publicId (ex: "1-abc123"), allow direct access only if session exists and is open
+        if (raw.includes('-')) {
+            try {
+                const row = db.prepare(`SELECT id FROM table_sessions WHERE public_id = ? AND status = 'open' LIMIT 1`).get(raw);
+                if (row && row.id) {
+                    return sendPublicFile(res, "mesa.html");
+                }
+            } catch (err) {
+                console.error('Erro ao verificar public_id da mesa:', err);
+            }
+            // invalid or closed publicId -> send to login
+            return res.redirect('/mesa');
+        }
+
+        // Otherwise check if there is an open session for this table number
+        try {
+            const row = db.prepare(`SELECT public_id FROM table_sessions WHERE table_number = ? AND status = 'open' ORDER BY opened_at DESC LIMIT 1`).get(raw);
+
+            if (row && row.public_id) {
+                // There is an open session for this table number.
+                // Do NOT redirect to the publicId when user manually types /mesa/:numero —
+                // instead force the login screen to avoid accidental session exposure.
+                return res.redirect('/mesa');
+            }
+        } catch (err) {
+            console.error('Erro ao verificar sessão da mesa:', err);
+        }
+
+        // No open session: force login screen
+        return res.redirect('/mesa');
     });
 
     // API da mesa
     web.get("/api/mesa/:numero", (req, res) => {
-        const numeroMesa = Number(req.params.numero);
+        let raw = String(req.params.numero || "");
+        console.log('/api/mesa/:numero raw param ->', JSON.stringify(raw));
+        // support publicId like "1-abcdef12" or plain numbers
+        if (raw.includes('-')) raw = raw.split('-')[0];
+        const numeroMesa = Number(raw);
 
         res.json({
             mesa: numeroMesa,
-            nome: `Mesa ${numeroMesa}`
+            nome: `Mesa ${isNaN(numeroMesa) ? raw : numeroMesa}`
         });
+    });
+
+    // Chamar garçom (via mesa public id)
+    web.post('/api/mesa/:publicId/call-waiter', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || "");
+            const sess = buscarSessaoPorPublicId(publicId);
+
+            if (!sess) {
+                return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
+            }
+
+            // Atualiza last_seen
+            require('./database').db.prepare(`UPDATE table_sessions SET last_seen = CURRENT_TIMESTAMP WHERE id = ?`).run(sess.id);
+
+            // Notifica via socket
+            try { io.emit('mesa_chamar_garcom', { publicId: sess.publicId, tableNumber: sess.tableNumber }); } catch(e) { console.error(e); }
+
+            return res.json({ ok: true, mensagem: 'Garçom chamado' });
+        } catch (err) {
+            console.error('Erro em call-waiter:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Pedido de fechamento de conta (solicita ao balcão)
+    web.post('/api/mesa/:publicId/request-close', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || "");
+            const sess = buscarSessaoPorPublicId(publicId);
+            const paymentMethod = (req.body && req.body.paymentMethod) ? String(req.body.paymentMethod) : null;
+
+            if (!sess) {
+                return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
+            }
+
+            // Notifica via socket para o balcão
+            try { io.emit('mesa_pedir_fechamento', { publicId: sess.publicId, tableNumber: sess.tableNumber, paymentMethod }); } catch(e) { console.error(e); }
+
+            return res.json({ ok: true, mensagem: 'Solicitação de fechamento enviada ao balcão' });
+        } catch (err) {
+            console.error('Erro em request-close:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Cancelar solicitação de fechamento (mesa)
+    web.post('/api/mesa/:publicId/cancel-close', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || "");
+            const sess = buscarSessaoPorPublicId(publicId);
+
+            if (!sess) {
+                return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
+            }
+
+            try { io.emit('mesa_cancelar_fechamento', { publicId: sess.publicId, tableNumber: sess.tableNumber }); } catch (e) { console.error(e); }
+
+            return res.json({ ok: true, mensagem: 'Solicitação de fechamento cancelada' });
+        } catch (err) {
+            console.error('Erro em cancel-close:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Confirmação de pagamento / fechamento: fecha sessão atual e cria nova sessão com mesmo table_number
+    web.post('/api/mesa/:publicId/confirm-close', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || "");
+            const sess = buscarSessaoPorPublicId(publicId);
+
+            if (!sess) {
+                return res.status(404).json({ ok: false, mensagem: 'Sessão da mesa não encontrada' });
+            }
+
+            // Fecha sessão atual
+            const closed = fecharSessaoPorPublicId(publicId);
+
+            // Cria nova sessão com mesmo table_number
+            const newSess = criarSessaoMesa({ tableNumber: sess.tableNumber, deviceId: null, restaurantId: sess.restaurantId });
+
+            // Notifica via socket
+            try {
+                io.emit('mesa_fechada_confirmada', { oldPublicId: publicId, newPublicId: newSess.publicId, tableNumber: sess.tableNumber });
+            } catch (e) {
+                console.error(e);
+            }
+
+            return res.json({ ok: true, mensagem: 'Conta fechada e nova sessão criada', newPublicId: newSess.publicId, closed });
+        } catch (err) {
+            console.error('Erro em confirm-close:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Ficha / resumo da mesa (pedidos da sessão)
+    web.get('/api/mesa/:publicId/ficha', (req, res) => {
+        try {
+            const publicId = String(req.params.publicId || '');
+            const sess = buscarSessaoPorPublicId(publicId);
+
+            if (!sess) return res.status(404).json({ ok: false, mensagem: 'Sessão não encontrada' });
+
+            // listar pedidos e filtrar por numero_mesa e por horario >= opened_at
+            const pedidos = listarPedidos().filter(p => {
+                const mesaNum = Number(p.mesa);
+                if (isNaN(mesaNum)) return false;
+                if (Number(sess.tableNumber) !== mesaNum) return false;
+                // comparar por string timestamps: criadoEm >= openedAt
+                if (sess.openedAt && p.criadoEm) {
+                    return p.criadoEm >= sess.openedAt;
+                }
+                return true;
+            });
+
+            const totalCentavos = pedidos.reduce((t, p) => t + (p.totalCentavos || 0), 0);
+
+            return res.json({ ok: true, session: sess, pedidos, totalCentavos });
+        } catch (err) {
+            console.error('Erro em /api/mesa/:publicId/ficha', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Validar senha padrão da loja (usado para voltar ao menu principal)
+    web.post('/api/mesa/validate-password', (req, res) => {
+        try {
+            const { password } = req.body || {};
+            const configuracoes = obterConfiguracoes();
+            const senhaPadrao = (configuracoes.loja && configuracoes.loja.senhaPadrao) || '1234';
+
+            if (String(password || '') === String(senhaPadrao)) {
+                return res.json({ ok: true });
+            }
+
+            return res.status(401).json({ ok: false, mensagem: 'Senha incorreta' });
+        } catch (err) {
+            console.error('Erro validar senha:', err);
+            return res.status(500).json({ ok: false, mensagem: 'Erro interno' });
+        }
+    });
+
+    // Login / criação de sessão de mesa
+    web.post("/api/mesa/login", (req, res) => {
+        try {
+            const { table_number, password, device_id, remember } = req.body || {};
+            const tableNumber = String(table_number || table_number === 0 ? table_number : "").trim();
+
+            if (!tableNumber) {
+                return res.status(400).json({ ok: false, mensagem: "Informe o número da mesa." });
+            }
+
+            const configuracoes = obterConfiguracoes();
+            const senhaPadrao = (configuracoes.loja && configuracoes.loja.senhaPadrao) || "1234";
+
+            if (String(password || "") !== String(senhaPadrao)) {
+                return res.status(401).json({ ok: false, mensagem: "Senha incorreta." });
+            }
+
+            const sess = criarSessaoMesa({ tableNumber, deviceId: device_id || null, restaurantId: null });
+
+            res.json({
+                ok: true,
+                mensagem: "Sessão da mesa criada.",
+                publicId: sess.publicId,
+                tableSessionId: sess.id
+            });
+        } catch (err) {
+            console.error("Erro ao criar sessão de mesa:", err);
+            res.status(500).json({ ok: false, mensagem: "Erro ao abrir mesa." });
+        }
     });
 
     // API de configurações
@@ -624,9 +854,48 @@ function createTray() {
         }
     ]);
 
-    tray.setToolTip("Servidor da Lanchonete");
+tray.setToolTip("Servidor da Lanchonete");
     tray.setContextMenu(menu);
 }
+
+// Graceful shutdown helpers
+function gracefulShutdown(code = 0) {
+    console.log('Iniciando graceful shutdown...');
+    if (server && server.close) {
+        server.close(() => {
+            console.log('Servidor HTTP fechado. Saindo.');
+            process.exit(code);
+        });
+        // Forçar saída após 10s
+        setTimeout(() => {
+            console.error('Timeout durante shutdown, forçando exit.');
+            process.exit(code || 1);
+        }, 10000).unref();
+    } else {
+        process.exit(code);
+    }
+}
+
+process.on('SIGTERM', () => {
+    console.log('Recebido SIGTERM');
+    gracefulShutdown(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('Recebido SIGINT');
+    gracefulShutdown(0);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('uncaughtException:', err);
+    gracefulShutdown(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('unhandledRejection:', reason);
+    // try to shutdown gracefully
+    gracefulShutdown(1);
+});
 
 if (isWebOnly) {
     startLocalServer();

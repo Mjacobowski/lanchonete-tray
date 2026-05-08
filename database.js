@@ -28,6 +28,24 @@ function criarTabelasSeNaoExistirem() {
     `).run();
 
     db.prepare(`
+        CREATE TABLE IF NOT EXISTS table_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            restaurant_id INTEGER,
+            table_number TEXT NOT NULL,
+            session_hash TEXT NOT NULL,
+            public_id TEXT NOT NULL UNIQUE,
+            device_id TEXT,
+            status TEXT NOT NULL DEFAULT 'open',
+            opened_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            closed_at TEXT,
+            last_seen TEXT,
+            meta_json TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    `).run();
+
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS pedido_itens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             pedido_id INTEGER NOT NULL,
@@ -684,6 +702,90 @@ function atualizarStatusPedido(id, status) {
     return buscarPedidoPorId(id);
 }
 
+// -----------------------------
+// Table sessions (mesa aberta)
+// -----------------------------
+
+function gerarSessionHash() {
+    // Gera 8 hex chars
+    return Math.random().toString(16).slice(2, 10);
+}
+
+function criarSessaoMesa({ restaurantId = null, tableNumber, deviceId = null, meta = null }) {
+    const tableNumberStr = String(tableNumber || "").trim();
+
+    if (!tableNumberStr) {
+        throw new Error("Número da mesa é obrigatório.");
+    }
+
+    const sessionHash = gerarSessionHash();
+    const publicId = `${tableNumberStr}-${sessionHash}`;
+
+    const stmt = db.prepare(`
+        INSERT INTO table_sessions (
+            restaurant_id,
+            table_number,
+            session_hash,
+            public_id,
+            device_id,
+            status,
+            opened_at,
+            last_seen,
+            meta_json
+        ) VALUES (?, ?, ?, ?, ?, 'open', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)
+    `);
+
+    const result = stmt.run(
+        restaurantId,
+        tableNumberStr,
+        sessionHash,
+        publicId,
+        deviceId,
+        meta ? JSON.stringify(meta) : null
+    );
+
+    return buscarSessaoPorId(result.lastInsertRowid);
+}
+
+function buscarSessaoPorId(id) {
+    const row = db.prepare(`SELECT * FROM table_sessions WHERE id = ?`).get(id);
+    if (!row) return null;
+    return {
+        id: row.id,
+        restaurantId: row.restaurant_id,
+        tableNumber: row.table_number,
+        sessionHash: row.session_hash,
+        publicId: row.public_id,
+        deviceId: row.device_id,
+        status: row.status,
+        openedAt: row.opened_at,
+        closedAt: row.closed_at,
+        lastSeen: row.last_seen,
+        meta: row.meta_json ? JSON.parse(row.meta_json) : null,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+    };
+}
+
+function buscarSessaoPorPublicId(publicId) {
+    const row = db.prepare(`SELECT * FROM table_sessions WHERE public_id = ?`).get(String(publicId));
+    if (!row) return null;
+    return buscarSessaoPorId(row.id);
+}
+
+function fecharSessaoPorPublicId(publicId) {
+    const sess = db.prepare(`SELECT id FROM table_sessions WHERE public_id = ? AND status = 'open'`).get(String(publicId));
+    if (!sess) return null;
+
+    db.prepare(`
+        UPDATE table_sessions
+        SET status = 'closed', closed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    `).run(sess.id);
+
+    return buscarSessaoPorId(sess.id);
+}
+
 module.exports = {
     db,
 
@@ -705,4 +807,8 @@ module.exports = {
     buscarProdutoPorId,
     alterarStatusProduto,
     excluirProduto
+    ,
+    criarSessaoMesa,
+    buscarSessaoPorPublicId,
+    fecharSessaoPorPublicId
 };

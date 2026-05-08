@@ -86,6 +86,23 @@
             gap: 12px;
         }
 
+        .btn-sino {
+            background: var(--cor-primaria);
+            color: white;
+            border: 0;
+            width:40px;
+            height:40px;
+            border-radius:8px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            font-size:18px;
+            padding:0;
+        }
+
+        .btn-sino:hover { filter: brightness(0.95); }
+
         .btn-carrinho-header {
             background: var(--cor-primaria);
             color: white;
@@ -290,6 +307,12 @@
             filter: brightness(0.95);
         }
 
+        .btn-adicionar.disabled {
+            background: #ef4444 !important; /* red */
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
         .vazio {
             grid-column: 1 / -1;
             text-align: center;
@@ -359,7 +382,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.55);
-            z-index: 100;
+            z-index: 9999;
             padding: 16px;
             align-items: flex-end;
             justify-content: center;
@@ -377,6 +400,21 @@
             padding: 20px;
             max-height: 85vh;
             overflow-y: auto;
+        }
+
+        /* centered modal variant (use for Fechar Conta and Resumo) */
+        .modal.centered {
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+        .modal.centered .modal-card {
+            border-radius: 12px;
+            width: 90%;
+            max-width: 720px;
+            max-height: 80vh;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
         }
 
         .modal-header {
@@ -523,6 +561,9 @@
             filter: brightness(0.95);
         }
 
+        .footer-actions { display:flex; gap:12px; align-items:center; }
+        .btn-fechar-conta { background: var(--cor-primaria); color: white; border:0; }
+
         @media (max-width: 1024px) {
             :root { --sidebar-width: 220px; }
 
@@ -569,10 +610,12 @@
             </div>
 
             <div class="header-right">
-                <button class="btn-carrinho-header" onclick="abrirCarrinho()">
-                    🧾 Pedido
-                    <span class="contador-carrinho" id="contador">0</span>
+                <button type="button" class="btn-carrinho-header" onclick="abrirResumo()">
+                    🧾 Resumo
                 </button>
+                <button id="btnSino" type="button" title="Ações da mesa" class="btn-sino" onclick="abrirMesaActions()">🔔</button>
+                <!-- Botão temporário para testar idle mode -->
+                <button id="btnIdleTest" type="button" title="Testar idle" class="btn-sino" style="background:#111;border:1px solid rgba(255,255,255,0.08);" onclick="showIdleHome()">Idle</button>
             </div>
         </header>
 
@@ -598,10 +641,84 @@
                 <p class="carrinho-resumo" id="carrinhoResumo">Pedido vazio</p>
                 <p class="carrinho-total" id="carrinhoTotal">R$ 0,00</p>
             </div>
-            <button class="btn-finalizar" id="btnFinalizar" onclick="abrirCarrinho()" disabled>
-                Finalizar Pedido
-            </button>
+            <div class="footer-actions">
+                <button class="btn-finalizar" id="btnFinalizar" type="button" onclick="abrirCarrinho()" disabled>Enviar Pedido</button>
+                <button class="btn-fechar-conta btn-finalizar" id="btnFooterFechar" type="button" onclick="abrirFecharConta()">Fechar Conta</button>
+            </div>
         </section>
+    </div>
+
+    <!-- antigo botão fechar conta removido (agora no rodapé) -->
+
+    <!-- MODAL AÇÕES DA MESA (sino) -->
+    <div id="modalMesaActions" class="modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Ações da mesa</h2>
+                <button class="modal-close" onclick="fecharMesaActions()">✕</button>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <button class="btn-modal-enviar" onclick="chamarGarcom()">Chamar Garçom</button>
+                <button class="btn-modal-fechar" onclick="mostrarSenhaVoltar()">Voltar para o menu principal</button>
+            </div>
+
+            <div id="voltarSenha" style="display:none;margin-top:12px;">
+                <label><strong>Senha do restaurante</strong></label>
+                <input id="senhaVoltar" type="password" style="width:100%;padding:10px;margin-top:6px;border:1px solid var(--borda);border-radius:8px;" />
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button class="btn-modal-enviar" onclick="validarSenhaVoltar()">Confirmar</button>
+                    <button class="btn-modal-fechar" onclick="document.getElementById('voltarSenha').style.display='none'">Cancelar</button>
+                </div>
+                <div id="voltarMsg" style="margin-top:8px;color:#b91c1c;display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FECHAR CONTA -->
+    <div id="modalFecharConta" class="modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Fechar conta</h2>
+                <button class="modal-close" onclick="fecharFecharConta()">✕</button>
+            </div>
+            <p>Escolha a forma de pagamento:</p>
+
+            <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('pix')">PIX</button>
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('card')">Cartão</button>
+                <button class="btn-modal-enviar" onclick="selecionarPagamento('cash')">Dinheiro</button>
+            </div>
+
+            <div id="fecharContaMsg" style="margin-top:12px;display:none;color:#065f46;font-weight:700"></div>
+        </div>
+    </div>
+
+    <!-- MODAL RESUMO DA MESA -->
+    <div id="modalResumo" class="modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Resumo da mesa</h2>
+                <button class="modal-close" onclick="fecharResumo()">✕</button>
+            </div>
+
+            <div id="resumoPedidos"></div>
+
+            <div style="margin-top:12px;text-align:right;font-weight:700;font-size:16px;" id="resumoTotal">Total: R$ 0,00</div>
+            <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;">
+                <button class="btn-fechar-conta btn-finalizar" onclick="abrirFecharConta()">Fechar Conta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IDLE HOME / CARROSSEL -->
+    <div id="idleHome" style="display:none;position:fixed;inset:0;z-index:120000;background:#000;align-items:center;justify-content:center;"> 
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <div id="idleCarousel" style="width:100%;height:100%;position:relative;">
+                <!-- slides inserted dynamically -->
+            </div>
+        </div>
+        <button id="idleClose" style="position:absolute;right:18px;top:18px;background:rgba(255,255,255,0.08);border:0;color:#fff;padding:10px;border-radius:8px;cursor:pointer;">Voltar</button>
     </div>
 
     <!-- MODAL DO CARRINHO -->
@@ -649,7 +766,13 @@
         function getNumeroMesa() {
             const partes = window.location.pathname.split("/");
             if (partes[2] === "preview") return 0;
-            return Number(partes[2]);
+            const raw = String(partes[2] || "");
+            // if publicId like "1-abc123" extract before hyphen
+            if (raw.includes("-")) {
+                const before = raw.split("-")[0];
+                return Number(before);
+            }
+            return Number(raw);
         }
 
         async function carregarConfiguracoes() {
@@ -662,6 +785,9 @@
                 document.documentElement.style.setProperty("--cor-destaque", config.tema.corDestaque);
 
                 document.getElementById("nomeLoja").innerText = config.loja.nomeFantasia || "Lanchonete";
+
+                // carousel images (idle home)
+                window.carouselImages = (config.loja && config.loja.carousel && Array.isArray(config.loja.carousel)) ? config.loja.carousel : [];
 
                 const logo = config.loja.logoUrl;
                 const logoEl = document.getElementById("logo");
@@ -678,7 +804,7 @@
             numeroMesa = getNumeroMesa();
             modoPreview = numeroMesa === 0;
 
-            if (modoPreview) {
+        if (modoPreview) {
                 document.getElementById("mesaInfo").innerText = "Mesa 0 - Preview";
                 document.getElementById("previewAviso").style.display = "block";
                 document.title = "Preview da mesa";
@@ -688,7 +814,8 @@
             try {
                 const resposta = await fetch(`/api/mesa/${numeroMesa}`);
                 const mesa = await resposta.json();
-                document.getElementById("mesaInfo").innerText = mesa.nome;
+                // mesa.nome já pode ser "Mesa X" ou um publicId; garantimos mostrar algo legível
+                document.getElementById("mesaInfo").innerText = mesa.nome || ("Mesa " + numeroMesa);
                 document.title = mesa.nome;
             } catch (error) {
                 console.error("Erro ao carregar mesa:", error);
@@ -831,8 +958,8 @@
         function atualizarCarrinho() {
             const quantidade = carrinho.reduce((total, item) => total + item.quantidade, 0);
             const total = calcularTotal();
-
-            document.getElementById("contador").innerText = quantidade;
+            const contadorEl = document.getElementById("contador");
+            if (contadorEl) contadorEl.innerText = quantidade;
             const resumoEl = document.getElementById("carrinhoResumo");
             if (resumoEl) resumoEl.innerText = quantidade === 0 ? "Pedido vazio" : `${quantidade} item(ns)`;
             const totalEl = document.getElementById("carrinhoTotal");
@@ -841,11 +968,382 @@
             if (btn) btn.disabled = quantidade === 0;
         }
 
+        async function abrirResumo() {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/ficha`);
+                if (!resp.ok) throw new Error('Erro ao buscar ficha');
+                const data = await resp.json();
+                const container = document.getElementById('resumoPedidos');
+                if (!container) return;
+                const pedidos = data.pedidos || [];
+                if (pedidos.length === 0) {
+                    container.innerHTML = '<p>Nenhum pedido nesta sessão.</p>';
+                } else {
+                    container.innerHTML = pedidos.map(p => {
+                        const itens = (p.itens || []).map(i => `${i.quantidade}x ${i.nome} (${formatarMoeda(i.precoUnitarioCentavos)})`).join('<br>');
+                        return `<div style="padding:10px;border-bottom:1px solid var(--borda);margin-bottom:8px;"><strong>Pedido #${p.id}</strong><div style="font-size:13px;color:var(--muted);margin-top:6px;">${itens}</div><div style="text-align:right;margin-top:8px;font-weight:700;">${formatarMoeda(p.totalCentavos)}</div></div>`;
+                    }).join('');
+                }
+
+                const totalEl = document.getElementById('resumoTotal');
+                if (totalEl) totalEl.innerText = 'Total parcial: ' + formatarMoeda(data.totalCentavos || 0);
+
+                const mr = document.getElementById('modalResumo');
+                mr.classList.add('aberto','centered');
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao carregar resumo');
+            }
+        }
+
+        function fecharResumo() {
+            const mr = document.getElementById('modalResumo');
+            if (mr) mr.classList.remove('aberto','centered');
+        }
+
+        // UI state: whether closing was requested
+        let closingRequested = false;
+
+        function setClosingRequested(flag) {
+            closingRequested = !!flag;
+            // toggle add buttons
+            document.querySelectorAll('.btn-adicionar').forEach(b => {
+                if (closingRequested) {
+                    b.classList.add('disabled');
+                    b.setAttribute('disabled', 'disabled');
+                } else {
+                    b.classList.remove('disabled');
+                    b.removeAttribute('disabled');
+                }
+            });
+
+            // footer button text/behavior
+            const footerBtn = document.getElementById('btnFooterFechar');
+            if (footerBtn) {
+                if (closingRequested) {
+                    footerBtn.innerText = 'Cancelar fechamento';
+                    footerBtn.onclick = cancelarFecharConta;
+                } else {
+                    footerBtn.innerText = 'Fechar Conta';
+                    footerBtn.onclick = abrirFecharConta;
+                }
+            }
+
+            // resumo modal button if present
+            const resumoBtn = document.querySelector('#modalResumo .btn-fechar-conta');
+            if (resumoBtn) {
+                if (closingRequested) {
+                    resumoBtn.innerText = 'Cancelar fechamento';
+                    resumoBtn.onclick = cancelarFecharConta;
+                } else {
+                    resumoBtn.innerText = 'Fechar Conta';
+                    resumoBtn.onclick = abrirFecharConta;
+                }
+            }
+        }
+
+        // Idle / carousel implementation
+        let idleTimer = null;
+        let idleInterval = null;
+        const IDLE_TIMEOUT = 20000; // 20 seconds
+        const SLIDE_INTERVAL = 5000; // 5 seconds
+
+        function resetIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+            // if idle home is visible, hide it on activity
+            const idleEl = document.getElementById('idleHome');
+            if (idleEl && idleEl.style.display !== 'none') {
+                hideIdleHome();
+            }
+            idleTimer = setTimeout(() => showIdleHome(), IDLE_TIMEOUT);
+        }
+
+        function showIdleHome() {
+            const idleEl = document.getElementById('idleHome');
+            const carousel = document.getElementById('idleCarousel');
+            if (!idleEl || !carousel) return;
+            // populate slides
+            carousel.innerHTML = '';
+            // priority: configured carousel images -> loja.logoUrl -> fallback saga image
+            const clientLogo = (document.getElementById('logo') && document.getElementById('logo').src) ? document.getElementById('logo').src : null;
+            const images = (window.carouselImages && window.carouselImages.length)
+                ? window.carouselImages
+                : (clientLogo ? [clientLogo] : ['/img/saga-system.png']);
+            images.forEach((src, i) => {
+                const slide = document.createElement('div');
+                slide.style.position = 'absolute';
+                slide.style.inset = '0';
+                slide.style.background = `center / cover no-repeat url('${src}')`;
+                slide.style.opacity = i === 0 ? '1' : '0';
+                slide.style.transition = 'opacity 0.6s ease';
+                carousel.appendChild(slide);
+            });
+
+            idleEl.style.display = 'flex';
+            // start auto slide
+            let idx = 0;
+            idleInterval = setInterval(() => {
+                const slides = Array.from(carousel.children);
+                slides.forEach((s, j) => s.style.opacity = j === idx ? '1' : '0');
+                idx = (idx + 1) % slides.length;
+            }, SLIDE_INTERVAL);
+        }
+
+        function hideIdleHome() {
+            const idleEl = document.getElementById('idleHome');
+            const carousel = document.getElementById('idleCarousel');
+            if (!idleEl) return;
+            idleEl.style.display = 'none';
+            if (idleInterval) { clearInterval(idleInterval); idleInterval = null; }
+            if (carousel) carousel.innerHTML = '';
+            // restart idle timer
+            resetIdleTimer();
+        }
+
+        // attach activity listeners
+        ['mousemove','mousedown','touchstart','keydown','click'].forEach(ev => {
+            window.addEventListener(ev, resetIdleTimer, { passive: true });
+        });
+
+        // idle close button
+        document.addEventListener('DOMContentLoaded', () => {
+            const idleClose = document.getElementById('idleClose');
+            if (idleClose) idleClose.addEventListener('click', hideIdleHome);
+            resetIdleTimer();
+            // expose and bind test button
+            try {
+                window.showIdleHome = showIdleHome;
+                const idleBtn = document.getElementById('btnIdleTest');
+                if (idleBtn) {
+                    idleBtn.addEventListener('click', () => {
+                        console.log('btnIdleTest clicked');
+                        showIdleHome();
+                    });
+                }
+            } catch (e) { console.error('bind idle test failed', e); }
+        });
+
+        async function cancelarFecharConta() {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/cancel-close`, { method: 'POST' });
+                const data = await resp.json();
+                if (resp.ok) {
+                    setClosingRequested(false);
+                    // show feedback briefly
+                    const el = document.getElementById('fecharContaMsg') || document.getElementById('resumoFecharMsg');
+                    if (el) { el.innerText = data.mensagem || 'Cancelado'; el.style.color = '#065f46'; el.style.display = 'block'; }
+                    setTimeout(() => {
+                        if (el) el.style.display = 'none';
+                    }, 1200);
+                } else {
+                    const el = document.getElementById('fecharContaMsg') || document.getElementById('resumoFecharMsg');
+                    if (el) { el.innerText = data.mensagem || 'Erro'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+                }
+            } catch (err) {
+                console.error(err);
+                const el = document.getElementById('fecharContaMsg') || document.getElementById('resumoFecharMsg');
+                if (el) { el.innerText = 'Erro de rede'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+            }
+        }
+
         function abrirCarrinho() {
-            if (carrinho.length === 0) return;
+            // Always open resumo modal (show cart contents or empty summary)
             document.getElementById("modalCarrinho").classList.add("aberto");
             document.getElementById("mensagem").style.display = "none";
             renderizarItensCarrinho();
+        }
+
+        function abrirMesaActions() {
+            document.getElementById('modalMesaActions').classList.add('aberto');
+        }
+
+        function fecharMesaActions() {
+            document.getElementById('modalMesaActions').classList.remove('aberto');
+            document.getElementById('voltarSenha').style.display = 'none';
+            document.getElementById('voltarMsg').style.display = 'none';
+            document.getElementById('senhaVoltar').value = '';
+        }
+
+        async function chamarGarcom() {
+            try {
+                const publicId = window.location.pathname.split('/')[2];
+                const resp = await fetch(`/api/mesa/${publicId}/call-waiter`, { method: 'POST' });
+                const data = await resp.json();
+                alert(data.mensagem || 'Garçom chamado');
+                fecharMesaActions();
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao chamar garçom');
+            }
+        }
+
+        function mostrarSenhaVoltar() {
+            document.getElementById('voltarSenha').style.display = 'block';
+        }
+
+        async function validarSenhaVoltar() {
+            const senha = document.getElementById('senhaVoltar').value || '';
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch('/api/mesa/validate-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: senha })
+                });
+
+                if (!resp.ok) {
+                    const txt = await resp.json().catch(()=>({mensagem:'Senha incorreta'}));
+                    document.getElementById('voltarMsg').innerText = txt.mensagem || 'Senha incorreta';
+                    document.getElementById('voltarMsg').style.display = 'block';
+                    return;
+                }
+
+                // sucesso: redireciona para página principal
+                location.href = '/';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('voltarMsg').innerText = 'Erro de rede';
+                document.getElementById('voltarMsg').style.display = 'block';
+            }
+        }
+
+        function abrirFecharConta() {
+            const m = document.getElementById('modalFecharConta');
+            m.classList.add('aberto','centered');
+            // force this modal above others
+            m.style.zIndex = '110000';
+            const card = m.querySelector('.modal-card');
+            if (card) card.style.zIndex = '110001';
+        }
+
+        function fecharFecharConta() {
+            const m = document.getElementById('modalFecharConta');
+            if (m) {
+                m.classList.remove('aberto','centered');
+                m.style.zIndex = '';
+                const card = m.querySelector('.modal-card');
+                if (card) card.style.zIndex = '';
+            }
+            document.getElementById('fecharContaMsg').style.display = 'none';
+            document.getElementById('fecharContaMsg').innerText = '';
+        }
+
+        async function confirmarFecharConta() {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/request-close`, { method: 'POST' });
+                const data = await resp.json();
+
+                // prefer modal-specific message container if present, fallback to global fecharContaMsg
+                let el = document.getElementById('fecharContaMsg');
+                if (!el) {
+                    // create a small message container inside resumo modal
+                    const resumo = document.getElementById('modalResumo');
+                    if (resumo) {
+                        el = document.getElementById('resumoFecharMsg');
+                        if (!el) {
+                            el = document.createElement('div');
+                            el.id = 'resumoFecharMsg';
+                            el.style.marginTop = '12px';
+                            el.style.fontWeight = '700';
+                            resumo.querySelector('.modal-card').appendChild(el);
+                        }
+                    }
+                }
+
+                if (resp.ok) {
+                    if (el) { el.innerText = data.mensagem || 'Solicitação enviada'; el.style.color = '#065f46'; el.style.display = 'block'; }
+                    // close any open fechar modal
+                    fecharFecharConta();
+                    // mark UI as closing requested
+                    setClosingRequested(true);
+                    // close resumo after short delay
+                    setTimeout(() => fecharResumo(), 1200);
+                } else {
+                    if (el) { el.innerText = data.mensagem || 'Erro'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+                }
+            } catch (err) {
+                console.error(err);
+                let el = document.getElementById('fecharContaMsg') || document.getElementById('resumoFecharMsg');
+                if (el) { el.innerText = 'Erro de rede'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+            }
+        }
+
+        function selecionarPagamento(method) {
+            // ensure the choice modal is closed before proceeding
+            try { fecharFecharConta(); } catch(e) { console.error(e); }
+
+            // if PIX, open PIX modal with QR placeholder
+            if (method === 'pix') {
+                abrirPixModal();
+                return;
+            }
+
+            // for card or cash, send request-close with paymentMethod
+            confirmarFecharContaComMetodo(method);
+        }
+
+        async function confirmarFecharContaComMetodo(method) {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/request-close`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentMethod: method }) });
+                const data = await resp.json();
+                if (resp.ok) {
+                    setClosingRequested(true);
+                    const el = document.getElementById('fecharContaMsg');
+                    if (el) { el.innerText = data.mensagem || 'Solicitação enviada'; el.style.display = 'block'; }
+                    fecharFecharConta();
+                    setTimeout(() => fecharResumo(), 1200);
+                } else {
+                    const el = document.getElementById('fecharContaMsg');
+                    if (el) { el.innerText = data.mensagem || 'Erro'; el.style.color = '#b91c1c'; el.style.display = 'block'; }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function abrirPixModal() {
+            // show a simple pix modal inside the resumen modal area
+            const existing = document.getElementById('modalPix');
+            if (existing) { existing.classList.add('aberto','centered'); return; }
+
+            const div = document.createElement('div');
+            div.id = 'modalPix';
+            div.className = 'modal centered aberto';
+            div.innerHTML = `<div class="modal-card"><div class="modal-header"><h2>PIX</h2><button class="modal-close" onclick="fecharPixModal()">✕</button></div><div style="padding:12px;"><p>Chave PIX: <strong>00011122233@pix.ex</strong></p><div style="margin-top:12px;padding:12px;border:1px dashed #ddd;text-align:center;">[QRCODE PLACEHOLDER]</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button class="btn-modal-fechar" onclick="fecharPixModal()">Fechar</button><button class="btn-modal-enviar" style="margin-left:8px;" onclick="confirmarPagamentoTest()">Confirmar pagamento (teste)</button></div></div></div>`;
+            document.body.appendChild(div);
+        }
+
+        function fecharPixModal() {
+            const m = document.getElementById('modalPix');
+            if (m) {
+                m.remove();
+                // re-apply current closingRequested state to avoid UI desync
+                try { setClosingRequested(closingRequested); } catch (e) { console.error(e); }
+            }
+        }
+
+        // Test helper: confirma pagamento e finaliza sessão atual, criando nova sessão no servidor
+        async function confirmarPagamentoTest() {
+            const publicId = window.location.pathname.split('/')[2];
+            try {
+                const resp = await fetch(`/api/mesa/${publicId}/confirm-close`, { method: 'POST' });
+                const data = await resp.json();
+                if (resp.ok && data.newPublicId) {
+                    // update UI: reset closingRequested and redirect to new session
+                    setClosingRequested(false);
+                    fecharPixModal();
+                    // redirect to new publicId
+                    location.href = '/mesa/' + data.newPublicId;
+                } else {
+                    alert('Erro ao confirmar pagamento: ' + (data.mensagem || ''));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro de rede ao confirmar pagamento');
+            }
         }
 
         function fecharCarrinho() {
