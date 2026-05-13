@@ -376,5 +376,5 @@ ISC
 **CI baseline (adicionado)**
 
 - Adicionado workflow minimal de CI para verificar instalação (`npm ci`) e checagem básica.
-- Se o endpoint `/health` estiver disponível, o workflow tentará fazer um smoke test contra ele.
+- Este workflow não inicia o servidor nem executa smoke test de runtime; isso será tratado em PR futuro após revisão de autenticação e bind.
 - Este workflow é um começo; recomenda-se expandir para lint, testes e build de artefatos.
