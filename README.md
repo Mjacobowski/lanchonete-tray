@@ -364,3 +364,17 @@ Desenvolvido por **SAGA System**.
 ## Licença
 
 ISC
+
+## SECURITY & CI (adicionado pela branch delta/docs-ci-baseline)
+
+**Avisos de segurança imediatos**
+
+- Troque a senha padrão usada nas rotinas de sessão (evite usar "1234" ou qualquer senha previsível). Configure uma senha forte antes de expor a aplicação.
+- Não exponha `0.0.0.0:3000` diretamente na internet. Use proxy reverso com autenticação, firewall e TLS. Em produção, não bindar 0.0.0.0 sem proteção.
+- Ambiente de produção deve ter autenticação para endpoints administrativos e segredos fortes (não usar valores default em `configuracoes`).
+
+**CI baseline (adicionado)**
+
+- Adicionado workflow minimal de CI para verificar instalação (`npm ci`) e checagem básica.
+- Este workflow não inicia o servidor nem executa smoke test de runtime; isso será tratado em PR futuro após revisão de autenticação e bind.
+- Este workflow é um começo; recomenda-se expandir para lint, testes e build de artefatos.
